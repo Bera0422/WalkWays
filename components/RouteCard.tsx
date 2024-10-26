@@ -5,48 +5,65 @@ import Tag from './Tag';
 import { Route } from '../src/types/RouteTypes';
 
 interface Props {
-    item: Route,
-    onPress: () => void
+  item: Route,
+  onPress: () => void
 }
 
 const RouteCard: React.FC<Props> = ({ item, onPress }) => (
   <TouchableOpacity onPress={onPress} style={styles.card}>
-    <Image source={item.image} style={styles.cardImage} />
+    <View style={styles.detailsContainer}>
+      <Image source={item.image} style={styles.cardImage} />
 
-    {/* Rating */}
-    <View style={styles.ratingContainer}>
-      <Ionicons name="star" size={16} color="#FFD700" />
-      <Text style={styles.ratingText}>{item.rating}</Text>
+      {/* Rating */}
+      <View style={styles.ratingContainer}>
+        <Ionicons name="star" size={16} color="#FFD700" />
+        <Text style={styles.ratingText}>{item.rating}</Text>
+      </View>
+
+      <View style={styles.cardContent}>
+        <Text style={styles.routeName}>{item.name}</Text>
+
+        {/* Distance */}
+        <View style={styles.detailTextContainer}>
+          <Text style={styles.detailLabel}>Distance:</Text>
+          <Text style={styles.detailValue}>{item.distance}</Text>
+        </View>
+
+        {/* Estimated Time */}
+        <View style={styles.detailTextContainer}>
+          <Text style={styles.detailLabel}>Estimated Time:</Text>
+          <Text style={styles.detailValue}>{item.time}</Text>
+        </View>
+      </View>
+
     </View>
 
-    <View style={styles.cardContent}>
-      <Text style={styles.routeName}>{item.name}</Text>
-      <Text style={styles.routeDetails}>{`${item.distance} • ${item.time}`}</Text>
-
-      {/* Tags */}
-      <View style={styles.tagsContainer}>
-        {item.tags.map((tag) => (
-          <Tag key={tag.id} icon={tag.icon} text={tag.name} />
-        ))}
-      </View>
+    {/* Tags */}
+    <View style={styles.tagsContainer}>
+      {item.tags.map((tag) => (
+        <Tag key={tag.id} icon={tag.icon} text={tag.name} />
+      ))}
     </View>
   </TouchableOpacity>
 );
 
 const styles = StyleSheet.create({
   card: {
-    flexDirection: 'row',
-    margin: 10,
-    padding: 10,
-    backgroundColor: '#fff',
+    flexDirection: 'column',
+    margin: 15,
+    padding: 20,
+    backgroundColor: '#EBDCF5',
     borderRadius: 8,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
   },
+  detailsContainer: {
+    flexDirection: 'row',
+  },
   cardImage: {
-    width: 80,
-    height: 80,
+    width: 110,
+    height: 110,
     borderRadius: 8,
     marginRight: 10,
   },
@@ -71,18 +88,27 @@ const styles = StyleSheet.create({
   },
   cardContent: {
     flex: 1,
-    justifyContent: 'center',
   },
   routeName: {
     fontSize: 16,
     fontWeight: 'bold',
   },
-  routeDetails: {
+  detailTextContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 25, 
+  },
+  detailLabel: {
     color: '#555',
+    fontSize: 15,
+  },
+  detailValue: {
+    color: '#333',
+    fontSize: 15,
   },
   tagsContainer: {
     flexDirection: 'row',
-    marginTop: 4,
+    marginTop: 10,
   },
 });
 

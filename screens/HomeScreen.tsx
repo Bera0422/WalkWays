@@ -30,6 +30,18 @@ const routes = [
   },
   {
     id: '2',
+    name: 'Rome Historic Walk',
+    distance: '4 miles',
+    time: '1 hour 20 min',
+    rating: 5.0,
+    tags: [
+      { id: '1', name: 'Ancient Ruins', icon: '' },
+      { id: '2', name: 'Cobblestone Streets', icon: '' },
+    ],
+    image: require('../assets/rome.jpg'), // Placeholder image
+  },
+  {
+    id: '3',
     name: 'Golden Gate Stroll',
     distance: '2.8 miles',
     time: '50 mins',
@@ -40,7 +52,6 @@ const routes = [
     ],
     image: require('../assets/golden_gate.jpg'), // Placeholder image
   },
-  // Add more routes as needed
 ];
 
 
