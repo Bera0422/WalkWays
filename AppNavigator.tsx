@@ -1,0 +1,45 @@
+// navigation.tsx
+import React from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import HomeScreen from './screens/HomeScreen';
+import RouteDetailsScreen from './screens/RouteDetailsScreen';
+import TrackingScreen from './screens/TrackingScreen';
+import FeedbackScreen from './screens/FeedbackScreen';
+import CommunityScreen from './screens/CommunityScreen';
+import { RootStackParamList } from './src/types/types';
+
+const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+function HomeStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="HomeStack" component={HomeScreen} />
+      <Stack.Screen name="RouteDetails" component={RouteDetailsScreen} />
+      {/* <Stack.Screen name="Tracking" component={TrackingScreen} /> */}
+      {/* <Stack.Screen name="Feedback" component={FeedbackScreen} /> */}
+    </Stack.Navigator>
+  );
+}
+
+function TrackingStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="TrackingStack" component={TrackingScreen} />
+      <Stack.Screen name="Feedback" component={FeedbackScreen} />
+      {/* <Stack.Screen name="Community" component={CommunityScreen} /> */}
+    </Stack.Navigator>
+  );
+}
+
+export default function Navigation() {
+  return (
+    <Tab.Navigator screenOptions={{ headerShown: false }}>
+      <Tab.Screen name="Home" component={HomeStack} />
+      <Tab.Screen name="Tracking" component={TrackingStack} />
+      <Tab.Screen name="Community" component={CommunityScreen} />
+      {/* Profile Tab would be added later */}
+    </Tab.Navigator>
+  );
+}
