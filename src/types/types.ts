@@ -15,7 +15,7 @@ export type RootStackParamList = {
     };
     TrackingStack: undefined;
     Feedback: undefined;
-    Community: undefined;
+    CommunityStack: undefined;
   };
 
 export type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'HomeStack'>;

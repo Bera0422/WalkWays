@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, TextInput, Image, FlatList, TouchableOpacity, StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, Text, TextInput, Image, FlatList, TouchableOpacity, StyleSheet, TouchableWithoutFeedback, Keyboard, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import RouteCard from '../components/RouteCard';
+import SearchBar from '../components/SearchBar';
 
 const filters = [
   { filterId: '1', name: 'Historical', icon: 'building-columns' },
@@ -65,20 +66,12 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.container}>
+        <StatusBar barStyle="light-content" />
+
         {/* Header with Search and Filters */}
         <View style={styles.header}>
           {/* <Text style={styles.title}>WalkWays</Text> */}
-          <TouchableOpacity style={styles.searchContainer} onPress={focusSearchInput}>
-            <Ionicons name="search" size={20} color="gray" style={styles.icon} />
-            <TextInput
-              ref={textInputRef}
-              style={styles.searchBar}
-              placeholder="Find routes to walk"
-              placeholderTextColor="#B8B8B8"
-              multiline={false}
-              numberOfLines={1}
-            />
-          </TouchableOpacity>
+          <SearchBar placeholder="Find routes to walk" />
 
           <FlatList
             data={filters}
@@ -102,9 +95,9 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <RouteCard
-            item={item}
-            onPress={() => navigation.navigate('RouteDetails', { routeItem: item })}
-          />
+              item={item}
+              onPress={() => navigation.navigate('RouteDetails', { routeItem: item })}
+            />
           )}
         />
 
@@ -121,26 +114,6 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 20,
-  },
-  searchBar: {
-    marginVertical: 1,
-    padding: 10,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    fontSize: 18
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F5F3FE', // Adjust to fit your color scheme
-    borderRadius: 25, // Rounds the edges
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    marginBottom: 16,
-  },
-  icon: {
-    marginRight: 8,
-    color: '#B8B8B8'
   },
   filterContainer: {
     flexDirection: 'row',

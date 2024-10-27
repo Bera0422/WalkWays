@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
+  StatusBar,
 } from 'react-native';
 import { RouteDetailsScreenRouteProp, RouteDetailsScreenNavigationProp } from '../src/types/types';
 import { FontAwesome } from '@expo/vector-icons'; // For star icons
@@ -83,6 +84,7 @@ interface Props {
 const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" />
       <ScrollView style={styles.scrollContainer}>
         {/* Image Carousel */}
         <FlatList
@@ -112,62 +114,62 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
           <Text style={styles.descriptionTitle}>Description</Text>
           <Text style={styles.descriptionText}>{routeDetail.description}</Text>
 
-          </View>
+        </View>
 
         {/* <View style={styles.mapPreview}>
           <Text>Map Preview Placeholder</Text>
         </View> */}
 
-          {/* Map View */}
-          <MapView
-            style={styles.map}
-            initialRegion={{
-              latitude: 37.78825,
-              longitude: -122.4324,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.005,
-            }}
-          >
-            {/* Placeholder Polyline Route */}
-            <Polyline
-              coordinates={[
-                { latitude: 37.78825, longitude: -122.4324 },
-                { latitude: 37.78525, longitude: -122.4324 },
-              ]}
-              strokeColor="#0000FF"
-              strokeWidth={3}
-            />
-          </MapView>
+        {/* Map View */}
+        <MapView
+          style={styles.map}
+          initialRegion={{
+            latitude: 37.78825,
+            longitude: -122.4324,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.005,
+          }}
+        >
+          {/* Placeholder Polyline Route */}
+          <Polyline
+            coordinates={[
+              { latitude: 37.78825, longitude: -122.4324 },
+              { latitude: 37.78525, longitude: -122.4324 },
+            ]}
+            strokeColor="#0000FF"
+            strokeWidth={3}
+          />
+        </MapView>
 
-          {/* Stats */}
-          <View style={styles.statsContainer}>
-            <View style={styles.stat}>
-              <Text style={styles.statLabel}>Estimated Time</Text>
-              <Text style={styles.statValue}>{routeDetail.time}</Text>
-            </View>
-            <View style={styles.stat}>
-              <Text style={styles.statLabel}>Distance</Text>
-              <Text style={styles.statValue}>{routeDetail.distance}</Text>
-            </View>
-            <View style={styles.stat}>
-              <Text style={styles.statLabel}>Elevation</Text>
-              <Text style={styles.statValue}>{routeDetail.elevation}</Text>
-            </View>
+        {/* Stats */}
+        <View style={styles.statsContainer}>
+          <View style={styles.stat}>
+            <Text style={styles.statLabel}>Estimated Time</Text>
+            <Text style={styles.statValue}>{routeDetail.time}</Text>
           </View>
+          <View style={styles.stat}>
+            <Text style={styles.statLabel}>Distance</Text>
+            <Text style={styles.statValue}>{routeDetail.distance}</Text>
+          </View>
+          <View style={styles.stat}>
+            <Text style={styles.statLabel}>Elevation</Text>
+            <Text style={styles.statValue}>{routeDetail.elevation}</Text>
+          </View>
+        </View>
 
-          {/* Community Feedback */}
-          <View style={styles.feedbackContainer}>
-            <Text style={styles.feedbackTitle}>Community Feedback</Text>
-            <FlatList
-              data={routeDetail.reviews}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => <Review review={item} />}
-              scrollEnabled={false} // This keeps feedback list from conflicting with main scroll
-            />
-          </View>
-          <TouchableOpacity onPress={() => console.log('Read More Reviews')}>
-            <Text style={styles.readMore}>Read more</Text>
-          </TouchableOpacity>
+        {/* Community Feedback */}
+        <View style={styles.feedbackContainer}>
+          <Text style={styles.feedbackTitle}>Community Feedback</Text>
+          <FlatList
+            data={routeDetail.reviews}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => <Review review={item} />}
+            scrollEnabled={false} // This keeps feedback list from conflicting with main scroll
+          />
+        </View>
+        <TouchableOpacity onPress={() => console.log('Read More Reviews')}>
+          <Text style={styles.readMore}>Read more</Text>
+        </TouchableOpacity>
       </ScrollView>
       {/* Fixed Start Walk Button */}
       <TouchableOpacity

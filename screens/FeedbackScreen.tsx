@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { FeedbackScreenNavigationProp } from '../src/types/types';
 
 
 interface Props {
     navigation: FeedbackScreenNavigationProp;
-  }
-  
+}
+
 const FeedbackScreen: React.FC<Props> = ({ navigation }) => {
     const [rating, setRating] = useState<number>(4); // Example initial rating
     const [shareWithCommunity, setShareWithCommunity] = useState<boolean>(false);
@@ -27,6 +27,8 @@ const FeedbackScreen: React.FC<Props> = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
+            <StatusBar barStyle="light-content" />
+
             {/* Rate Your Experience */}
             <Text style={styles.sectionTitle}>Rate Your Experience</Text>
             <View style={styles.starContainer}>{renderStars()}</View>
@@ -58,7 +60,7 @@ const FeedbackScreen: React.FC<Props> = ({ navigation }) => {
             </View>
 
             {/* Submit button */}
-            <TouchableOpacity style={styles.submitButton} onPress={() => {navigation.navigate('Community')}}>
+            <TouchableOpacity style={styles.submitButton} onPress={() => { navigation.navigate('Community') }}>
                 <Text style={styles.submitButtonText}>Submit</Text>
             </TouchableOpacity>
         </View>

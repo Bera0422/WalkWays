@@ -1,6 +1,6 @@
 // TrackingScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, Button, TouchableOpacity, FlatList, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, Button, TouchableOpacity, FlatList, SafeAreaView, StatusBar } from 'react-native';
 import MapView, { Polyline } from 'react-native-maps';
 import { TrackingScreenNavigationProp } from '../src/types/types';
 import Timer from '../components/Timer';
@@ -33,6 +33,7 @@ const TrackingScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" />
       <ScrollView>
         {/* Friends List (Horizontal Scroll) */}
         <View>

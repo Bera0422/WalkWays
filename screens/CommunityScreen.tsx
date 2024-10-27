@@ -1,22 +1,78 @@
-// screens/CommunityScreen.tsx
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, FlatList, StyleSheet, TouchableOpacity, Text, StatusBar } from 'react-native';
+import PostCard from '../components/PostCard';
+import SearchBar from '../components/SearchBar';
 
-const CommunityScreen = () => {
+const posts = [
+    {
+        id: '1',
+        avatar: require('../assets/avatars/8.jpg'),
+        name: 'Williams Nulsen',
+        date: 'Oct 26, 2023',
+        comment: 'Amazing route!',
+        postImage: require('../assets/manhattan.jpg'),
+    },
+    {
+        id: '2',
+        avatar: require('../assets/avatars/27.jpg'),
+        name: 'Lon Joudrey',
+        date: 'Oct 25, 2023',
+        comment: 'Anyone wants to join me?',
+    },
+    // Additional posts as needed
+];
+
+const CommunityScreen: React.FC = () => {
     return (
         <View style={styles.container}>
-            <Text>Community Screen</Text>
-            {/* Placeholder for Community content */}
+            <StatusBar barStyle="light-content" />
+            <View style={styles.header}>
+                <SearchBar placeholder='Search in your community' />
+            </View>
+            <FlatList
+                data={posts}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                    <PostCard
+                        avatar={item.avatar}
+                        name={item.name}
+                        date={item.date}
+                        comment={item.comment}
+                        postImage={item.postImage}
+                    />
+                )}
+                contentContainerStyle={styles.postsList}
+            />
+
+            <TouchableOpacity style={styles.postButton}>
+                <Text style={styles.postButtonText}>+</Text>
+            </TouchableOpacity>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 16,
-        backgroundColor: '#fff',
+    container: { flex: 1, backgroundColor: '#f8f8f8' },
+    header: {
+        paddingTop: 10,
+        paddingHorizontal: 10
     },
+    postsList: { paddingHorizontal: 15, paddingBottom: 70 },
+    postButton: {
+        position: 'absolute',
+        bottom: 20,
+        right: 20,
+        backgroundColor: '#007AFF',
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#000',
+        shadowOpacity: 0.2,
+        shadowOffset: { width: 0, height: 2 },
+    },
+    postButtonText: { fontSize: 30, color: '#fff', fontWeight: 'bold' },
 });
 
 export default CommunityScreen;

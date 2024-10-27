@@ -50,6 +50,21 @@ function TrackingStack() {
   );
 }
 
+function CommunityStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="CommunityStack"
+        component={CommunityScreen}
+        options={{
+          title: 'Your Community',
+          headerStyle: { backgroundColor: '#6A2766' },
+          headerTintColor: '#fff',
+        }} />
+    </Stack.Navigator>
+  );
+}
+
 export default function Navigation() {
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
@@ -63,7 +78,7 @@ export default function Navigation() {
       />
       <Tab.Screen
         name="Community"
-        component={CommunityScreen}
+        component={CommunityStack}
       />
       {/* Profile Tab would be added later */}
     </Tab.Navigator>
