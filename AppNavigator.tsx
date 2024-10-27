@@ -15,8 +15,18 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 function HomeStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="HomeStack" component={HomeScreen} />
-      <Stack.Screen name="RouteDetails" component={RouteDetailsScreen} />
+      <Stack.Screen name="HomeStack" component={HomeScreen}
+        options={{
+          title: 'Home',
+          headerStyle: { backgroundColor: '#6A2766' },
+          headerTintColor: '#fff',
+        }} />
+      <Stack.Screen name="RouteDetails" component={RouteDetailsScreen}
+        options={{
+          title: 'Route Details',
+          headerStyle: { backgroundColor: '#6A2766' },
+          headerTintColor: '#fff',
+        }} />
       {/* <Stack.Screen name="Tracking" component={TrackingScreen} /> */}
       {/* <Stack.Screen name="Feedback" component={FeedbackScreen} /> */}
     </Stack.Navigator>
@@ -26,7 +36,14 @@ function HomeStack() {
 function TrackingStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="TrackingStack" component={TrackingScreen} />
+      <Stack.Screen
+        name="TrackingStack"
+        component={TrackingScreen}
+        options={{
+          title: 'Tracking Walk',
+          headerStyle: { backgroundColor: '#4CAF50' },
+          headerTintColor: '#fff',
+        }} />
       <Stack.Screen name="Feedback" component={FeedbackScreen} />
       {/* <Stack.Screen name="Community" component={CommunityScreen} /> */}
     </Stack.Navigator>
@@ -36,9 +53,18 @@ function TrackingStack() {
 export default function Navigation() {
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
-      <Tab.Screen name="Home" component={HomeStack} />
-      <Tab.Screen name="Tracking" component={TrackingStack} />
-      <Tab.Screen name="Community" component={CommunityScreen} />
+      <Tab.Screen
+        name="Home"
+        component={HomeStack}
+      />
+      <Tab.Screen
+        name="Tracking"
+        component={TrackingStack}
+      />
+      <Tab.Screen
+        name="Community"
+        component={CommunityScreen}
+      />
       {/* Profile Tab would be added later */}
     </Tab.Navigator>
   );

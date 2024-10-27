@@ -145,6 +145,7 @@ const styles = StyleSheet.create({
   filterContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: 10
   },
   filterButton: {
     padding: 8,
