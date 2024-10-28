@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import RouteCard from '../components/RouteCard';
 import SearchBar from '../components/SearchBar';
+import routes from '../data/routes';
 
 const filters = [
   { filterId: '1', name: 'Historical', icon: 'building-columns' },
@@ -16,44 +17,7 @@ const filters = [
   // Add more filters as needed
 ];
 
-const routes = [
-  {
-    id: '1',
-    name: 'Manhattan Walk',
-    distance: '3.2 miles',
-    time: '1 hour',
-    rating: 4.5,
-    tags: [
-      { id: '1', name: 'City Skyline', icon: 'city' },
-      { id: '2', name: 'Best for Tourists', icon: 'suitcase' },
-    ],
-    image: require('../assets/manhattan.jpg'), // Placeholder image
-  },
-  {
-    id: '2',
-    name: 'Rome Historic Walk',
-    distance: '4 miles',
-    time: '1 hour 20 min',
-    rating: 5.0,
-    tags: [
-      { id: '1', name: 'Ancient Ruins', icon: '' },
-      { id: '2', name: 'Cobblestone Streets', icon: '' },
-    ],
-    image: require('../assets/rome.jpg'), // Placeholder image
-  },
-  {
-    id: '3',
-    name: 'Golden Gate Stroll',
-    distance: '2.8 miles',
-    time: '50 mins',
-    rating: 4.8,
-    tags: [
-      { id: '1', name: 'Scenic', icon: 'image' },
-      { id: '2', name: 'Iconic', icon: 'grin-stars' },
-    ],
-    image: require('../assets/golden_gate.jpg'), // Placeholder image
-  },
-];
+
 
 
 const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {

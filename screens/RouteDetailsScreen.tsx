@@ -16,20 +16,9 @@ import Review from '../components/Review';
 import { Dimensions } from 'react-native';
 import MapView, { Polyline } from 'react-native-maps';
 import { getData } from '../src/utils/storage';
+import routeDetails from '../data/route_details';
 
 const win = Dimensions.get('window');
-
-type RouteDetail = {
-  name: string;
-  distance: string;
-  time: string;
-  elevation: string;
-  tags: string[];
-  images: any[]; // List of images for the carousel
-  description: string;
-  rating: number;
-  reviews: Review[];
-};
 
 type Review = {
   id: string;
@@ -39,42 +28,6 @@ type Review = {
   date: string;
   tags: string[];
   message?: string;
-};
-
-// Sample data for the selected route
-const routeDetail: RouteDetail = {
-  name: 'Manhattan Walk',
-  distance: '3.2 miles',
-  time: '1 hour',
-  elevation: 'Mostly Flat',
-  tags: ['City Skyline', 'Family-Friendly', 'Scenic'],
-  images: [
-    require('../assets/manhattan.jpg'),
-    require('../assets/golden_gate.jpg'),
-    require('../assets/rome.jpg'),
-  ],
-  description: 'Experience the best views of the city skyline on this scenic route...',
-  rating: 4.5,
-  reviews: [
-    {
-      id: '1',
-      name: 'John Doe',
-      avatar: require('../assets/avatars/1.jpg'),
-      rating: 5,
-      date: '2 weeks ago',
-      tags: ['Scenic', 'Dog-Friendly', 'Well-Maintained'],
-      message: 'Loved the scenic views and it was perfect for my dog!',
-    },
-    {
-      id: '2',
-      name: 'Joe Smith',
-      avatar: require('../assets/avatars/42.jpg'),
-      rating: 4,
-      date: '1 month ago',
-      tags: ['Family-Friendly', 'Relaxing'],
-      message: 'A bit crowded but overall a lovely experience.',
-    },
-  ],
 };
 
 interface Props {
@@ -95,7 +48,11 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
     fetchRouteFeedback();
   }, [routeId]);
 
-  console.log(routeReviews)
+  const selectedRoute = routeDetails[routeId];
+
+  if (!selectedRoute) {
+    return <Text>Route not found</Text>;
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -103,7 +60,7 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
       <ScrollView style={styles.scrollContainer}>
         {/* Image Carousel */}
         <FlatList
-          data={routeDetail.images}
+          data={selectedRoute.images}
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
@@ -113,21 +70,21 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 
         {/* Route Information */}
         <View style={styles.detailsContainer}>
-          <Text style={styles.routeName}>{routeDetail.name}</Text>
+          <Text style={styles.routeName}>{selectedRoute.name}</Text>
           <View style={styles.tagsAndRating}>
             <View style={styles.tagsContainer}>
-              {routeDetail.tags.map((tag, index) => (
+              {selectedRoute.tags.map((tag: string, index: number) => (
                 <Text key={index} style={styles.tag}>{tag}</Text>
               ))}
             </View>
             <Text style={styles.rating}>
-              {routeDetail.rating} <FontAwesome name="star" color="#FFD700" />
+              {selectedRoute.rating} <FontAwesome name="star" color="#FFD700" />
             </Text>
           </View>
 
           {/* Description */}
           <Text style={styles.descriptionTitle}>Description</Text>
-          <Text style={styles.descriptionText}>{routeDetail.description}</Text>
+          <Text style={styles.descriptionText}>{selectedRoute.description}</Text>
 
         </View>
 
@@ -139,8 +96,8 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
         <MapView
           style={styles.map}
           initialRegion={{
-            latitude: 37.78825,
-            longitude: -122.4324,
+            latitude: routeDetails[routeId].latitude,
+            longitude: routeDetails[routeId].longitude,
             latitudeDelta: 0.01,
             longitudeDelta: 0.005,
           }}
@@ -160,15 +117,15 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
         <View style={styles.statsContainer}>
           <View style={styles.stat}>
             <Text style={styles.statLabel}>Estimated Time</Text>
-            <Text style={styles.statValue}>{routeDetail.time}</Text>
+            <Text style={styles.statValue}>{selectedRoute.time}</Text>
           </View>
           <View style={styles.stat}>
             <Text style={styles.statLabel}>Distance</Text>
-            <Text style={styles.statValue}>{routeDetail.distance}</Text>
+            <Text style={styles.statValue}>{selectedRoute.distance}</Text>
           </View>
           <View style={styles.stat}>
             <Text style={styles.statLabel}>Elevation</Text>
-            <Text style={styles.statValue}>{routeDetail.elevation}</Text>
+            <Text style={styles.statValue}>{selectedRoute.elevation}</Text>
           </View>
         </View>
 
@@ -190,12 +147,12 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
       {/* Fixed Start Walk Button */}
       <TouchableOpacity
         style={styles.startWalkButton}
-        onPress={() => 
+        onPress={() =>
           navigation.reset({
             index: 0,
             routes: [{ name: 'TrackingStack', params: { screen: 'Tracking', params: { routeId } } }],
-        })
-      }
+          })
+        }
       >
         <Text style={styles.startWalkText}>Start Walk</Text>
       </TouchableOpacity>
