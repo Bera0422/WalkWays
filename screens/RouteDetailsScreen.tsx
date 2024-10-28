@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import { FontAwesome } from '@expo/vector-icons'; // For star icons
 import Review from '../components/Review';
 import { Dimensions } from 'react-native';
 import MapView, { Polyline } from 'react-native-maps';
+import { getData } from '../src/utils/storage';
 
 const win = Dimensions.get('window');
 
@@ -82,6 +83,20 @@ interface Props {
 }
 
 const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
+  const [routeReviews, setRouteReviewse] = useState<any[]>([]);
+  const routeId = route.params.routeItem.id;
+  useEffect(() => {
+    const fetchRouteFeedback = async () => {
+      const allFeedbacks = await getData('reviews');
+      const routeSpecificFeedbacks = allFeedbacks?.filter((f: any) => f.routeId === routeId) || [];
+      setRouteReviewse(routeSpecificFeedbacks);
+    };
+
+    fetchRouteFeedback();
+  }, [routeId]);
+
+  console.log(routeReviews)
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
@@ -161,7 +176,8 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
         <View style={styles.feedbackContainer}>
           <Text style={styles.feedbackTitle}>Community Feedback</Text>
           <FlatList
-            data={routeDetail.reviews}
+            // data={routeDetail.reviews}
+            data={routeReviews}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => <Review review={item} />}
             scrollEnabled={false} // This keeps feedback list from conflicting with main scroll
@@ -174,7 +190,12 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
       {/* Fixed Start Walk Button */}
       <TouchableOpacity
         style={styles.startWalkButton}
-        onPress={() => navigation.navigate('Tracking')}
+        onPress={() => 
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'TrackingStack', params: { screen: 'Tracking', params: { routeId } } }],
+        })
+      }
       >
         <Text style={styles.startWalkText}>Start Walk</Text>
       </TouchableOpacity>

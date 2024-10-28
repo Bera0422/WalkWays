@@ -57,12 +57,6 @@ const routes = [
 
 
 const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
-  const textInputRef = React.useRef<TextInput>(null);
-
-  const focusSearchInput = () => {
-    textInputRef.current?.focus();
-  };
-
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.container}>

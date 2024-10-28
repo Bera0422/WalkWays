@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, Button, TouchableOpacity, FlatList, SafeAreaView, StatusBar } from 'react-native';
 import MapView, { Polyline } from 'react-native-maps';
-import { TrackingScreenNavigationProp } from '../src/types/types';
+import { TrackingScreenNavigationProp, TrackingScreenRouteProp } from '../src/types/types';
 import Timer from '../components/Timer';
 
 const avatars = [
@@ -19,15 +19,26 @@ const avatars = [
 ]
 
 interface Props {
-  navigation: TrackingScreenNavigationProp
+  route: TrackingScreenRouteProp;
+  navigation: TrackingScreenNavigationProp;
 }
 
-const TrackingScreen: React.FC<Props> = ({ navigation }) => {
+const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
   const [isTimerActive, setIsTimerActive] = useState(true);
+  const routeId = route.params?.routeId;
+
+  if (!routeId) {
+    return (
+      <View style={styles.noWalkContainer}>
+        <Text style={styles.noWalkText}>No ongoing walk</Text>
+      </View>
+    );
+  }
 
   const handleEndWalk = () => {
     setIsTimerActive(false);
-    navigation.navigate('Feedback')
+    console.log("Ending walk: ", route)
+    navigation.navigate('Feedback', { routeId: routeId })
     // Additional logic to handle ending the walk
   };
 
@@ -109,6 +120,8 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#fff',
   },
+  noWalkContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  noWalkText: { fontSize: 18, color: '#888' },
   friendsText: {
     color: '#7F12AA',
     fontWeight: 'bold',

@@ -10,6 +10,7 @@ type ReviewProps = {
         date: string;
         tags: string[];
         message: string;
+        media?: any;
     };
 };
 
@@ -18,7 +19,7 @@ const Review: React.FC<ReviewProps> = ({ review }) => {
         const totalStars = 5;
         const filledStars = Array(review.rating).fill('★');
         const unfilledStars = Array(totalStars - review.rating).fill('★');
-        
+
         return (
             <Text style={styles.reviewStars}>
                 {filledStars.map((star, index) => (
@@ -50,6 +51,8 @@ const Review: React.FC<ReviewProps> = ({ review }) => {
             </View>
 
             {review.message && <Text style={styles.reviewMessage}>{review.message}</Text>}
+            {review.media && <Image source={{uri: review.media}} style={styles.reviewMedia} />}
+
         </View>
     );
 };
@@ -123,6 +126,13 @@ const styles = StyleSheet.create({
         color: '#555',
         marginTop: 5,
     },
+    reviewMedia: {
+        width: '100%',
+        height: 150,
+        borderRadius: 8,
+        marginTop: 5
+    },
+
 });
 
 export default Review;

@@ -15,7 +15,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 function HomeStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="HomeStack" component={HomeScreen}
+      <Stack.Screen name="Home" component={HomeScreen}
         options={{
           title: 'Home',
           headerStyle: { backgroundColor: '#6A2766' },
@@ -37,14 +37,21 @@ function TrackingStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="TrackingStack"
+        name="Tracking"
         component={TrackingScreen}
         options={{
           title: 'Tracking Walk',
           headerStyle: { backgroundColor: '#4CAF50' },
           headerTintColor: '#fff',
         }} />
-      <Stack.Screen name="Feedback" component={FeedbackScreen} />
+      <Stack.Screen
+        name="Feedback"
+        component={FeedbackScreen}
+        options={{
+          title: 'Feedback',
+          headerStyle: { backgroundColor: '#6A2766' },
+          headerTintColor: '#fff',
+        }} />
       {/* <Stack.Screen name="Community" component={CommunityScreen} /> */}
     </Stack.Navigator>
   );
@@ -54,7 +61,7 @@ function CommunityStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="CommunityStack"
+        name="Community"
         component={CommunityScreen}
         options={{
           title: 'Your Community',
@@ -69,16 +76,25 @@ export default function Navigation() {
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
       <Tab.Screen
-        name="Home"
+        name="HomeStack"
         component={HomeStack}
+        options={{
+          title: 'Home',
+        }}
       />
       <Tab.Screen
-        name="Tracking"
+        name="TrackingStack"
         component={TrackingStack}
+        options={{
+          title: 'Track',
+        }}
       />
       <Tab.Screen
-        name="Community"
+        name="CommunityStack"
         component={CommunityStack}
+        options={{
+          title: 'Community',
+        }}
       />
       {/* Profile Tab would be added later */}
     </Tab.Navigator>
