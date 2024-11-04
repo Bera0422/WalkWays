@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
 interface TimerProps {
+  initialTime: number;
   isActive: boolean;
   onComplete: () => void;
 }
 
-const Timer: React.FC<TimerProps> = ({ isActive, onComplete }) => {
-  const [seconds, setSeconds] = useState(0);
+const Timer: React.FC<TimerProps> = ({ initialTime, isActive, onComplete }) => {
+  const [seconds, setSeconds] = useState(initialTime);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;

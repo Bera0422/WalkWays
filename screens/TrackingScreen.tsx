@@ -1,9 +1,10 @@
 // TrackingScreen.tsx
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, Button, TouchableOpacity, FlatList, SafeAreaView, StatusBar } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, Button, TouchableOpacity, FlatList, SafeAreaView, StatusBar, AppStateStatus, AppState } from 'react-native';
 import MapView, { Polyline } from 'react-native-maps';
 import { TrackingScreenNavigationProp, TrackingScreenRouteProp } from '../src/types/types';
 import Timer from '../components/Timer';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const avatars = [
   { avatarId: '1', uri: require('../assets/avatars/1.jpg') },
@@ -24,23 +25,86 @@ interface Props {
 }
 
 const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
-  const [isTimerActive, setIsTimerActive] = useState(true);
   const routeId = route.params?.routeId;
+  
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [isTracking, setIsTracking] = useState(false);
+  const [savedRouteId, setSavedRouteId] = useState(-1);
 
-  if (!routeId) {
+  useEffect(() => {
+    loadTrackingData();
+    const appStateListener = AppState.addEventListener('change', handleAppStateChange);
+    return () => {
+      saveTrackingData();
+      appStateListener.remove();
+    };
+  }, []);
+
+  const handleAppStateChange = async (nextAppState: AppStateStatus) => {
+    if (nextAppState === 'background' && isTracking) {
+      await saveTrackingData();
+    }
+  };
+
+  const saveTrackingData = async () => {
+    try {
+      await AsyncStorage.setItem(
+        'trackingData',
+        JSON.stringify({ startTime, elapsedTime, isTracking, savedRouteId })
+      );
+    } catch (error) {
+      console.error('Failed to save tracking data:', error);
+    }
+  };
+
+  const loadTrackingData = async () => {
+    try {
+      const savedData = await AsyncStorage.getItem('trackingData');
+      console.log("SAVED DATA: " + savedData)
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        if (parsedData.routeId === routeId){
+        setStartTime(parsedData.startTime);
+        setIsTracking(parsedData.isTracking);
+        setElapsedTime(parsedData.elapsedTime);}
+        else{
+          setSavedRouteId(parsedData.routeId);
+          resetTracking();
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load tracking data:', error);
+    }
+  };
+
+  const startTracking = () => {
+    setStartTime(Date.now());
+    setIsTracking(true);
+  };
+
+  const resetTracking = () => {
+    setStartTime(Date.now());
+    setElapsedTime(0);
+    setIsTracking(true);
+  };
+
+  const handleEndWalk = async () => {
+    // setIsTimerActive(false);
+    console.log("Ending walk: ", route)
+    setIsTracking(false);
+    await AsyncStorage.removeItem('trackingData');
+    navigation.navigate('Feedback', { routeId: routeId })
+    // Additional logic to handle ending the walk
+  };
+
+  if (!isTracking) {
     return (
       <View style={styles.noWalkContainer}>
         <Text style={styles.noWalkText}>No ongoing walk</Text>
       </View>
     );
   }
-
-  const handleEndWalk = () => {
-    setIsTimerActive(false);
-    console.log("Ending walk: ", route)
-    navigation.navigate('Feedback', { routeId: routeId })
-    // Additional logic to handle ending the walk
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -90,7 +154,7 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
           <View style={styles.detailContainer}>
             <Text style={styles.detailLabel}>Time Elapsed</Text>
             {/* <Text style={styles.detailValue}>25 min</Text> */}
-            <Timer isActive={isTimerActive} onComplete={handleEndWalk} />
+            <Timer initialTime={elapsedTime} isActive={isTracking} onComplete={handleEndWalk} />
           </View>
 
           <View style={styles.detailContainer}>
@@ -106,7 +170,7 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
 
       {/* End Walk Button */}
       <TouchableOpacity style={styles.endWalkButton} onPress={handleEndWalk}>
-        <Text style={styles.endWalkButtonText}>{isTimerActive ? 'End Walk' : 'Start Walk'}</Text>
+        <Text style={styles.endWalkButtonText}>{isTracking ? 'End Walk' : 'Start Walk'}</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );

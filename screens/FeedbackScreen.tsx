@@ -1,12 +1,21 @@
 // FeedbackScreen.tsx
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, TouchableWithoutFeedback, Keyboard, SafeAreaView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, TouchableWithoutFeedback, Keyboard, SafeAreaView, AppState, AppStateStatus } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { FeedbackScreenNavigationProp, FeedbackScreenRouteProp } from '../src/types/types';
 import { getData, saveData } from '../src/utils/storage';
 import CheckBox from 'expo-checkbox';
 import MediaUpload from '../components/MediaUpload';
 import { ScrollView } from 'react-native-gesture-handler';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+type Feedback = {
+    routeId: string;
+    selectedTags: string[];
+    rating: number;
+    comments: string;
+  };
+
 
 interface Props {
     route: FeedbackScreenRouteProp;
@@ -20,6 +29,50 @@ const FeedbackScreen: React.FC<Props> = ({ route, navigation }) => {
     const [selectedTags, setSelectedTags] = useState<string[]>(['Historical', 'Dog Friendly', 'Family Friendly']);
     const [selectedMedia, setSelectedMedia] = useState<string | null>(null);
     const routeId = route.params.routeId;
+
+    const [feedback, setFeedback] = useState<Feedback>({
+        routeId: '',
+        selectedTags: [],
+        rating: 0,
+        comments: '',
+      });
+    
+      useEffect(() => {
+        loadFeedbackData();
+        const appStateListener = AppState.addEventListener('change', handleAppStateChange);
+        return () => {
+          saveFeedbackData();
+          appStateListener.remove();
+        };
+      }, []);
+    
+      const handleAppStateChange = async (nextAppState: AppStateStatus) => {
+        if (nextAppState === 'background') {
+          await saveFeedbackData();
+        }
+      };
+    
+      const saveFeedbackData = async () => {
+        try {
+          await AsyncStorage.setItem('unsavedFeedback', JSON.stringify(feedback));
+        } catch (error) {
+          console.error('Failed to save feedback:', error);
+        }
+      };
+    
+      const loadFeedbackData = async () => {
+        try {
+          const savedFeedback = await AsyncStorage.getItem('unsavedFeedback');
+          console.log("SAVED FEEDBACK: " + savedFeedback)
+          if (savedFeedback) {
+            setFeedback(JSON.parse(savedFeedback));
+          }
+        } catch (error) {
+          console.error('Failed to load feedback:', error);
+        }
+      };
+    
+
 
     const handleMediaSelect = (uri: string) => {
         setSelectedMedia(uri)
@@ -66,7 +119,7 @@ const FeedbackScreen: React.FC<Props> = ({ route, navigation }) => {
         } catch (error) {
             console.error('Error saving feedback:', error);
         }
-
+        await AsyncStorage.removeItem('unsavedFeedback')
         navigation.reset({
             index: 0,
             routes: [{ name: 'CommunityStack', params: { screen: 'Community' } }],
@@ -98,7 +151,7 @@ const FeedbackScreen: React.FC<Props> = ({ route, navigation }) => {
                 style={styles.textInput}
                 placeholder="Write your thoughts here..."
                 value={reviewMessage}
-                onChangeText={setReviewMessages}
+                onChangeText={(text) => {setReviewMessages(text); setFeedback({ ...feedback, comments: text})}}
                 multiline
             />
             {/* Upload Media */}
