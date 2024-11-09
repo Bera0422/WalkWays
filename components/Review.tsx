@@ -1,17 +1,10 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
+import { IReview } from '../src/types/types';
+import Tag from './Tag';
 
 type ReviewProps = {
-    review: {
-        id: string;
-        name: string;
-        avatar: any;
-        rating: number; // Rating from 1 to 5
-        date: string;
-        tags: string[];
-        message: string;
-        media?: any;
-    };
+    review: IReview
 };
 
 const Review: React.FC<ReviewProps> = ({ review }) => {
@@ -35,23 +28,24 @@ const Review: React.FC<ReviewProps> = ({ review }) => {
     return (
         <View style={styles.reviewContainer}>
             <View style={styles.header}>
-                <Image source={review.avatar} style={styles.avatar} />
+                <Image source={{ uri: review.avatar }} style={styles.avatar} />
                 <Text style={styles.reviewUser}>{review.name}</Text>
-                <Text style={styles.reviewDate}>{review.date}</Text>
+                <Text style={styles.reviewDate}>{review.timestamp.toDate().toLocaleDateString()}</Text>
             </View>
 
             <View style={styles.reviewHeader}>
                 {renderStars()}
             </View>
 
-            <View style={styles.tagsContainer}>
-                {review.tags.map((tag, index) => (
-                    <Text key={index} style={styles.reviewTag}>{tag}</Text>
+            {/* Tags */}
+            {review.tags && <View style={styles.tagsContainer}>
+                {review.tags.map((tag) => (
+                    <Tag key={tag.id} icon={tag.icon} text={tag.name} />
                 ))}
-            </View>
+            </View>}
 
-            {review.message && <Text style={styles.reviewMessage}>{review.message}</Text>}
-            {review.media && <Image source={{uri: review.media}} style={styles.reviewMedia} />}
+            {review.text && <Text style={styles.reviewMessage}>{review.text}</Text>}
+            {review.media && <Image source={{ uri: review.media }} style={styles.reviewMedia} />}
 
         </View>
     );

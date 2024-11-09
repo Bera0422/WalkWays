@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, TouchableWithoutFeedback, Keyboard, SafeAreaView, AppState, AppStateStatus } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import { FeedbackScreenNavigationProp, FeedbackScreenRouteProp } from '../src/types/types';
+import { FeedbackScreenNavigationProp, FeedbackScreenRouteProp } from '../src/types/props';
 import { getData, saveData } from '../src/utils/storage';
 import CheckBox from 'expo-checkbox';
 import MediaUpload from '../components/MediaUpload';

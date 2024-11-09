@@ -1,26 +1,88 @@
-import React from 'react';
-import { View, Text, TextInput, Image, FlatList, TouchableOpacity, StyleSheet, TouchableWithoutFeedback, Keyboard, StatusBar } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, TouchableWithoutFeedback, Keyboard, StatusBar, ActivityIndicator } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import RouteCard from '../components/RouteCard';
 import SearchBar from '../components/SearchBar';
-import routes from '../data/routes';
-
-const filters = [
-  { filterId: '1', name: 'Historical', icon: 'building-columns' },
-  { filterId: '2', name: 'Scenic', icon: 'image' },
-  { filterId: '3', name: 'Well-Lit', icon: 'lightbulb' },
-  { filterId: '4', name: 'Family Friendly', icon: 'children' },
-  { filterId: '5', name: 'Dog Friendly', icon: 'dog' },
-  { filterId: '6', name: 'Challenging', icon: 'hill-rockslide' },
-  { filterId: '7', name: 'Good for Photography', icon: 'camera' },
-  // Add more filters as needed
-];
-
-
-
+import _routes from '../data/routes';
+import { fetchRoutes, fetchFilters } from '../firestoreService';
+import { Route } from '../src/types/types';
 
 const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+  const [routes, setRoutes] = useState<Route[]>([]);
+  const [filters, setFilters] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filteredRoutes, setFilteredRoutes] = useState<Route[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+
+  useEffect(() => {
+    // Fetch routes data from Firestore when the component mounts
+    const getRoutes = async () => {
+      try {
+        const fetchedRoutes = await fetchRoutes();
+        setRoutes(fetchedRoutes);
+        setFilteredRoutes(fetchedRoutes);
+      } catch (error) {
+        console.error("Failed to fetch routes:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getRoutes();
+  }, []);
+
+  useEffect(() => {
+    const getFilters = async () => {
+      try {
+        const fetchedFilters = await fetchFilters();
+        setFilters(fetchedFilters);
+      } catch (error) {
+        console.error("Failed to fetch filters:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getFilters();
+  }, []);
+
+  const handleFilter = (filterId: string) => {
+    const isSelected = activeFilters.includes(filterId);
+    const newFilters = isSelected
+      ? activeFilters.filter(id => id !== filterId)
+      : [...activeFilters, filterId];
+
+    setActiveFilters(newFilters);
+
+    // Filter routes based on active filters
+    const filtered = routes.filter(route =>
+      newFilters.every(filter => route.tags.some(tag => tag.id === filter))
+    );
+    setFilteredRoutes(filtered);
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    const filtered = routes.filter(route =>
+      route.name.toLowerCase().includes(query.toLowerCase()) ||
+      route.details.description.toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredRoutes(filtered);
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator
+          size="large"
+          color={"#000"}
+        />
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.container}>
@@ -29,14 +91,21 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         {/* Header with Search and Filters */}
         <View style={styles.header}>
           {/* <Text style={styles.title}>WalkWays</Text> */}
-          <SearchBar placeholder="Find routes to walk" />
+          <SearchBar
+            placeholder="Find routes to walk"
+            value={searchQuery}
+            onChangeText={handleSearch}
+          />
 
           <FlatList
             data={filters}
             horizontal
-            keyExtractor={(item) => item.filterId}
+            keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-              <TouchableOpacity style={styles.filterCard}>
+              <TouchableOpacity
+                style={[styles.filterCard, activeFilters.includes(item.id) && styles.selectedFilter]}
+                onPress={() => handleFilter(item.id)}
+              >
                 <FontAwesome6 name={item.icon} size={18} color="#fff" style={styles.filterIcon} />
                 <Text style={styles.filterText}>{item.name}</Text>
               </TouchableOpacity>
@@ -49,7 +118,7 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         {/* Route List */}
 
         <FlatList
-          data={routes}
+          data={filteredRoutes}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <RouteCard
@@ -96,6 +165,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
+  },
+  selectedFilter: {
+    backgroundColor: '#B39DDB', // Highlight selected filter
   },
   filterIcon: {
     marginRight: 5,
@@ -177,6 +249,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderTopWidth: 1,
     borderColor: '#ddd',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

@@ -1,44 +1,27 @@
-import { StackNavigationProp } from "@react-navigation/stack";
-import { RouteProp } from "@react-navigation/native";
+import { Timestamp, GeoPoint } from "firebase/firestore";
 
-export type RootStackParamList = {
-  HomeStack: {
-    screen: string;
-  };
-  Home: undefined;
-  RouteDetails: {
-    routeItem: {
-      id: string;
-      name: string;
-      distance: string;
-      time: string;
-      tags: string[];
-      image: any;
-    };
-  };
-  TrackingStack: {
-    screen: string;
-    params: any
-  };
-  Tracking: {
-    routeId: string
-  };
-  Feedback: {
-    routeId: string;
-  };
-  CommunityStack: {
-    screen: string;
-  }
-  Community: undefined;
+export interface Route  {
+    id: string;
+    name: string;
+    distance: string;
+    estimatedTime: string;
+    elevation: string;
+    tags: { id: string; name: string; icon: string }[];
+    details: {
+      images: string[];
+      description: string;
+      location: GeoPoint;
+    }
+    rating: number;
+    timestamp: Timestamp;
+}
+export interface IReview {
+  id: string;
+  name: string;
+  avatar: string;
+  rating: number;
+  tags: { id: string; name: string; icon: string }[];
+  text: string;
+  timestamp: Timestamp;
+  media?: any;
 };
-
-export type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
-
-export type RouteDetailsScreenRouteProp = RouteProp<RootStackParamList, 'RouteDetails'>;
-export type RouteDetailsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'RouteDetails'>;
-
-export type TrackingScreenRouteProp = RouteProp<RootStackParamList, 'Tracking'>;
-export type TrackingScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Tracking'>;
-
-export type FeedbackScreenRouteProp = RouteProp<RootStackParamList, 'Feedback'>;
-export type FeedbackScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Feedback'>;

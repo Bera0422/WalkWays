@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, Button, TouchableOpacity, FlatList, SafeAreaView, StatusBar, AppStateStatus, AppState } from 'react-native';
 import MapView, { Polyline } from 'react-native-maps';
-import { TrackingScreenNavigationProp, TrackingScreenRouteProp } from '../src/types/types';
+import { TrackingScreenNavigationProp, TrackingScreenRouteProp } from '../src/types/props';
 import Timer from '../components/Timer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 

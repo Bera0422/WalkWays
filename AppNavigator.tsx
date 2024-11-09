@@ -7,7 +7,7 @@ import RouteDetailsScreen from './screens/RouteDetailsScreen';
 import TrackingScreen from './screens/TrackingScreen';
 import FeedbackScreen from './screens/FeedbackScreen';
 import CommunityScreen from './screens/CommunityScreen';
-import { RootStackParamList } from './src/types/types';
+import { RootStackParamList } from './src/types/props';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<RootStackParamList>();

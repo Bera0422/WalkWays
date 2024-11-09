@@ -1,4 +1,4 @@
-const routes = [
+const _routes = [
     {
       id: '1',
       name: 'Manhattan Walk',
@@ -110,4 +110,4 @@ const routes = [
     },
   ];
 
-export default routes;
+export default _routes;

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Tag from './Tag';
-import { Route } from '../src/types/RouteTypes';
+import { Route } from '../src/types/types';
 
 interface Props {
   item: Route,
@@ -32,7 +32,7 @@ const RouteCard: React.FC<Props> = ({ item, onPress }) => (
         {/* Estimated Time */}
         <View style={styles.detailTextContainer}>
           <Text style={styles.detailLabel}>Estimated Time:</Text>
-          <Text style={styles.detailValue}>{item.time}</Text>
+          <Text style={styles.detailValue}>{item.estimatedTime}</Text>
         </View>
       </View>
 

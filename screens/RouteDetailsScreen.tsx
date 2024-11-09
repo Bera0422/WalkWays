@@ -9,26 +9,18 @@ import {
   ScrollView,
   SafeAreaView,
   StatusBar,
+  ActivityIndicator,
 } from 'react-native';
-import { RouteDetailsScreenRouteProp, RouteDetailsScreenNavigationProp } from '../src/types/types';
+import { RouteDetailsScreenRouteProp, RouteDetailsScreenNavigationProp } from '../src/types/props';
 import { FontAwesome } from '@expo/vector-icons'; // For star icons
 import Review from '../components/Review';
 import { Dimensions } from 'react-native';
 import MapView, { Polyline } from 'react-native-maps';
-import { getData } from '../src/utils/storage';
-import routeDetails from '../data/route_details';
+import { IReview, Route } from '../src/types/types';
+import { fetchRouteDetails, fetchRouteReviews } from '../firestoreService';
+import Tag from '../components/Tag';
 
 const win = Dimensions.get('window');
-
-type Review = {
-  id: string;
-  name: string;
-  avatar: any;
-  rating: number;
-  date: string;
-  tags: string[];
-  message?: string;
-};
 
 interface Props {
   route: RouteDetailsScreenRouteProp;
@@ -36,21 +28,54 @@ interface Props {
 }
 
 const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
-  const [routeReviews, setRouteReviewse] = useState<any[]>([]);
+  const [routeReviews, setRouteReviews] = useState<IReview[]>([]);
   const routeId = route.params.routeItem.id;
+
+  const [routeDetails, setRouteDetails] = useState<Route>();
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    const fetchRouteFeedback = async () => {
-      const allFeedbacks = await getData('reviews');
-      const routeSpecificFeedbacks = allFeedbacks?.filter((f: any) => f.routeId === routeId) || [];
-      setRouteReviewse(routeSpecificFeedbacks);
+    // Fetch routes data from Firestore when the component mounts
+    const getRoute = async () => {
+      try {
+        const fetchedRouteDetails = await fetchRouteDetails(routeId); // Call the Firestore fetch function
+        setRouteDetails(fetchedRouteDetails);
+      } catch (error) {
+        console.error("Failed to fetch route:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    fetchRouteFeedback();
+    getRoute();
+  }, []);
+
+
+  useEffect(() => {
+    const getRouteReviews = async () => {
+      try {
+        const fetchedReviews = await fetchRouteReviews(routeId);
+        setRouteReviews(fetchedReviews);
+      } catch (error) {
+        console.error("Error fetching route reviews:", error);
+      }
+    };
+    getRouteReviews();
   }, [routeId]);
 
-  const selectedRoute = routeDetails[routeId];
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator
+          size="large"
+          color={"#000"}
+        />
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
-  if (!selectedRoute) {
+  if (!routeDetails) {
     return <Text>Route not found</Text>;
   }
 
@@ -60,31 +85,32 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
       <ScrollView style={styles.scrollContainer}>
         {/* Image Carousel */}
         <FlatList
-          data={selectedRoute.images}
+          data={routeDetails.details.images}
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => <Image source={item} style={styles.carouselImage} />}
+          renderItem={({ item }) => <Image source={{ uri: '' }} style={styles.carouselImage} />}
         />
 
         {/* Route Information */}
         <View style={styles.detailsContainer}>
-          <Text style={styles.routeName}>{selectedRoute.name}</Text>
+          <Text style={styles.routeName}>{routeDetails.name}</Text>
           <View style={styles.tagsAndRating}>
+            {/* Tags */}
             <View style={styles.tagsContainer}>
-              {selectedRoute.tags.map((tag: string, index: number) => (
-                <Text key={index} style={styles.tag}>{tag}</Text>
+              {routeDetails.tags.map((tag) => (
+                <Tag key={tag.id} icon={tag.icon} text={tag.name} />
               ))}
             </View>
             <Text style={styles.rating}>
-              {selectedRoute.rating} <FontAwesome name="star" color="#FFD700" />
+              {routeDetails.rating} <FontAwesome name="star" color="#FFD700" />
             </Text>
           </View>
 
           {/* Description */}
           <Text style={styles.descriptionTitle}>Description</Text>
-          <Text style={styles.descriptionText}>{selectedRoute.description}</Text>
+          <Text style={styles.descriptionText}>{routeDetails.details.description}</Text>
 
         </View>
 
@@ -96,8 +122,8 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
         <MapView
           style={styles.map}
           initialRegion={{
-            latitude: routeDetails[routeId].latitude,
-            longitude: routeDetails[routeId].longitude,
+            latitude: routeDetails.details.location.latitude,
+            longitude: routeDetails.details.location.longitude,
             latitudeDelta: 0.01,
             longitudeDelta: 0.005,
           }}
@@ -117,15 +143,15 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
         <View style={styles.statsContainer}>
           <View style={styles.stat}>
             <Text style={styles.statLabel}>Estimated Time</Text>
-            <Text style={styles.statValue}>{selectedRoute.time}</Text>
+            <Text style={styles.statValue}>{routeDetails.estimatedTime}</Text>
           </View>
           <View style={styles.stat}>
             <Text style={styles.statLabel}>Distance</Text>
-            <Text style={styles.statValue}>{selectedRoute.distance}</Text>
+            <Text style={styles.statValue}>{routeDetails.distance}</Text>
           </View>
           <View style={styles.stat}>
             <Text style={styles.statLabel}>Elevation</Text>
-            <Text style={styles.statValue}>{selectedRoute.elevation}</Text>
+            <Text style={styles.statValue}>{routeDetails.elevation}</Text>
           </View>
         </View>
 
@@ -236,6 +262,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: '600',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
