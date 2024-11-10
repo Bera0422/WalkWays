@@ -18,6 +18,8 @@
     "expo-checkbox": "~3.0.0",
     "expo-file-system": "~17.0.1",
     "expo-image-picker": "~15.0.7",
+    "expo-location": "~17.0.1",
+    "expo-sensors": "~13.0.9",
     "expo-status-bar": "~1.12.1",
     "firebase": "^11.0.1",
     "react": "18.2.0",

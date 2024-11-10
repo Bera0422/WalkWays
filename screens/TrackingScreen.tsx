@@ -5,6 +5,8 @@ import MapView, { Polyline } from 'react-native-maps';
 import { TrackingScreenNavigationProp, TrackingScreenRouteProp } from '../src/types/props';
 import Timer from '../components/Timer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Pedometer } from 'expo-sensors';
+import MapComponent from '../components/MapComponent';
 
 const avatars = [
   { avatarId: '1', uri: require('../assets/avatars/1.jpg') },
@@ -26,11 +28,19 @@ interface Props {
 
 const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
   const routeId = route.params?.routeId;
-  
+
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [stepCount, setStepCount] = useState(0);
   const [isTracking, setIsTracking] = useState(false);
   const [savedRouteId, setSavedRouteId] = useState(-1);
+
+  useEffect(() => {
+    const subscription = Pedometer.watchStepCount((result: any) => {
+      setStepCount(result.steps);
+    });
+    return () => subscription.remove();
+  }, []);
 
   useEffect(() => {
     loadTrackingData();
@@ -64,11 +74,12 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
       console.log("SAVED DATA: " + savedData)
       if (savedData) {
         const parsedData = JSON.parse(savedData);
-        if (parsedData.routeId === routeId){
-        setStartTime(parsedData.startTime);
-        setIsTracking(parsedData.isTracking);
-        setElapsedTime(parsedData.elapsedTime);}
-        else{
+        if (parsedData.routeId === routeId) {
+          setStartTime(parsedData.startTime);
+          setIsTracking(parsedData.isTracking);
+          setElapsedTime(parsedData.elapsedTime);
+        }
+        else {
           setSavedRouteId(parsedData.routeId);
           resetTracking();
         }
@@ -111,7 +122,7 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
       <StatusBar barStyle="light-content" />
       <ScrollView>
         {/* Friends List (Horizontal Scroll) */}
-        <View>
+        {/* <View>
           <Text style={styles.friendsText} >Friends on this route</Text>
           <FlatList
             data={avatars}
@@ -126,10 +137,10 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
             contentContainerStyle={styles.friendAvatarContainer}
             showsHorizontalScrollIndicator={false}
           />
-        </View>
+        </View> */}
 
         {/* Map View */}
-        <MapView
+        {/* <MapView
           style={styles.map}
           initialRegion={{
             latitude: 37.78825,
@@ -137,9 +148,9 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
           }}
-        >
-          {/* Placeholder Polyline Route */}
-          <Polyline
+        > */}
+        {/* Placeholder Polyline Route */}
+        {/* <Polyline
             coordinates={[
               { latitude: 37.78825, longitude: -122.4324 },
               { latitude: 37.78525, longitude: -122.4324 },
@@ -147,7 +158,9 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
             strokeColor="#0000FF"
             strokeWidth={3}
           />
-        </MapView>
+        </MapView> */}
+
+        <MapComponent></MapComponent>
 
         {/* Walk Details */}
         <View style={styles.walkDetails}>
@@ -163,7 +176,7 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
           </View>
           <View style={styles.detailContainer}>
             <Text style={styles.detailLabel}>Step Count</Text>
-            <Text style={styles.detailValue}>4300</Text>
+            <Text style={styles.detailValue}>{stepCount}</Text>
           </View>
         </View>
       </ScrollView>
