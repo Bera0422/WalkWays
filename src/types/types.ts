@@ -2,6 +2,7 @@ import { Timestamp, GeoPoint } from "firebase/firestore";
 
 export interface Route  {
     id: string;
+    image: string;
     name: string;
     distance: string;
     estimatedTime: string;

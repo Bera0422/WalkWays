@@ -23,6 +23,7 @@ const styles = StyleSheet.create({
     marginRight: 5,
     paddingHorizontal: 15,
     paddingVertical: 10,
+    marginTop: 3,
   },
   icon: {
     marginRight: 4,

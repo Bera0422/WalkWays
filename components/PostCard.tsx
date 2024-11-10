@@ -11,17 +11,16 @@ interface PostCardProps {
 }
 
 const PostCard: React.FC<PostCardProps> = ({ avatar, name, date, comment, postImage }) => {
-  console.log(postImage);
   return (
     <View style={styles.card}>
-      <Image source={avatar} style={styles.avatar} />
+      <Image source={{ uri: avatar }} style={styles.avatar} />
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.name}>{name}</Text>
           <Text style={styles.date}>{date}</Text>
         </View>
         <Text style={styles.comment}>{comment}</Text>
-        {postImage && <Image source={{uri: postImage}} style={styles.postImage} />}
+        {postImage && <Image source={{ uri: postImage }} style={styles.postImage} />}
       </View>
     </View>
   );

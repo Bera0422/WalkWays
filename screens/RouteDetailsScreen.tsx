@@ -90,7 +90,7 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => <Image source={{ uri: '' }} style={styles.carouselImage} />}
+          renderItem={({ item }) => <Image source={{ uri: item }} style={styles.carouselImage} />}
         />
 
         {/* Route Information */}

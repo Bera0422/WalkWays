@@ -12,7 +12,7 @@ interface Props {
 const RouteCard: React.FC<Props> = ({ item, onPress }) => (
   <TouchableOpacity onPress={onPress} style={styles.card}>
     <View style={styles.detailsContainer}>
-      <Image source={item.image} style={styles.cardImage} />
+      <Image source={{uri: item.image}} style={styles.cardImage} />
 
       {/* Rating */}
       <View style={styles.ratingContainer}>

@@ -4,7 +4,7 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import RouteCard from '../components/RouteCard';
 import SearchBar from '../components/SearchBar';
 import _routes from '../data/routes';
-import { fetchRoutes, fetchFilters } from '../firestoreService';
+import { fetchRoutes, fetchTags } from '../firestoreService';
 import { Route } from '../src/types/types';
 
 const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
@@ -35,7 +35,7 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   useEffect(() => {
     const getFilters = async () => {
       try {
-        const fetchedFilters = await fetchFilters();
+        const fetchedFilters = await fetchTags();
         setFilters(fetchedFilters);
       } catch (error) {
         console.error("Failed to fetch filters:", error);
