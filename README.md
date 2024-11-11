@@ -78,6 +78,9 @@ curated walking experiences.
 # Initial Design
 
 **Minimum Viable Product (MVP)**  
+
+[View the detailed MVP](MVP.md)
+
 The MVP will deliver core functionality aimed at providing a meaningful
 walking experience for casual walkers and tourists. The key features
 are:
@@ -143,6 +146,10 @@ The main screens and components can be described as follows:
 Initial sketches for the UI:
 
 <img width="417" alt="resim" src="https://github.com/user-attachments/assets/479e7e4c-9ccc-44e8-a9a1-3ce6768e4ec4">
+
+Initial Mockup for the UI:
+
+[WalkWays Initial Mockup](https://github.com/user-attachments/files/17537590/WalkWays.Initial.Mockup-6.pdf)
 
 
 ## Technical Architecture
