@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import MapView, { Marker, Polyline } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
+import RenderHTML from 'react-native-render-html';
+import { useWindowDimensions } from 'react-native';
 
-const MapComponent = () => {
+const TrackingMap: React.FC = () => {
     const [location, setLocation] = useState<Location.LocationObject>();
     const [errorMsg, setErrorMsg] = useState('');
     const [directions, setDirections] = useState('');
 
     // Define the start and end coordinates for the route
-    const startCoords = { latitude: 37.7749, longitude: -122.4194 }; // San Francisco example
-    const endCoords = { latitude: 37.7849, longitude: -122.4094 };   // Slightly different location
+    const startCoords = { latitude: 37.7749, longitude: -122.4194 }; 
+    const endCoords = { latitude: 37.7849, longitude: -122.4094 };
 
     useEffect(() => {
         // Request location permissions and set up real-time tracking
@@ -36,10 +38,13 @@ const MapComponent = () => {
     // Function to update directions text
     const handleDirections = (result: { legs: string | any[]; }) => {
         if (result && result.legs && result.legs.length > 0) {
-            const steps = result.legs[0].steps.map((step: { instructions: any; }) => step.instructions);
-            setDirections(steps.join('. ')); // Combine step instructions
+            const steps = result.legs[0].steps.map((step: any) => step.html_instructions);
+            // console.log('<ul><li>' + steps.join('</li><li>') + '</li></ul>');
+            setDirections('<ul><li>' + steps.join('</li><li>') + '</li></ul>'); // Combine step instructions
         }
     };
+
+    const { width } = useWindowDimensions()
 
     return (
         <View style={styles.container}>
@@ -50,8 +55,8 @@ const MapComponent = () => {
                     initialRegion={{
                         latitude: location.coords.latitude,
                         longitude: location.coords.longitude,
-                        latitudeDelta: 0.01,
-                        longitudeDelta: 0.01,
+                        latitudeDelta: 0.1,
+                        longitudeDelta: 0.1,
                     }}
                     showsUserLocation={true}
                     followsUserLocation={true}
@@ -60,6 +65,7 @@ const MapComponent = () => {
                     <MapViewDirections
                         origin={startCoords}
                         destination={endCoords}
+                        mode='WALKING'
                         apikey=""
                         strokeWidth={4}
                         strokeColor="blue"
@@ -74,9 +80,15 @@ const MapComponent = () => {
             )}
 
             {/* Display Directions */}
-            <View style={styles.directionsContainer}>
-                <Text style={styles.directionsText}>Directions: {directions}</Text>
-            </View>
+            {/* <View style={styles.directionsContainer}> */}
+                {/* <Text style={styles.directionsText}>Directions: {directions}</Text> */}
+                {/* <View style={styles.instructionContainer}>
+                    <RenderHTML
+                        contentWidth={width}
+                        source={{ html: directions }}
+                    />
+                </View>
+            </View> */}
         </View>
     );
 };
@@ -85,6 +97,7 @@ const styles = StyleSheet.create({
     container: { flex: 1 },
     map: { flex: 5 },
     directionsContainer: {
+        marginVertical: 50,
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
@@ -95,6 +108,9 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#333',
     },
+    instructionContainer: {
+        padding: 10,
+    },
 });
 
-export default MapComponent;
+export default TrackingMap;

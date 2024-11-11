@@ -6,7 +6,7 @@ import { TrackingScreenNavigationProp, TrackingScreenRouteProp } from '../src/ty
 import Timer from '../components/Timer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Pedometer } from 'expo-sensors';
-import MapComponent from '../components/MapComponent';
+import TrackingMap from '../components/TrackingMap';
 
 const avatars = [
   { avatarId: '1', uri: require('../assets/avatars/1.jpg') },
@@ -140,28 +140,9 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
         </View>
 
         {/* Map View */}
-        <MapView
-          style={styles.map}
-          initialRegion={{
-            latitude: 37.78825,
-            longitude: -122.4324,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          }}
-        >
-        {/* Placeholder Polyline Route */}
-        <Polyline
-            coordinates={[
-              { latitude: 37.78825, longitude: -122.4324 },
-              { latitude: 37.78525, longitude: -122.4324 },
-            ]}
-            strokeColor="#0000FF"
-            strokeWidth={3}
-          />
-        </MapView>
-
-        {/* <MapComponent></MapComponent> */}
-
+        <View style={styles.mapContainer}>
+        <TrackingMap/>
+        </View>
         {/* Walk Details */}
         <View style={styles.walkDetails}>
           <View style={styles.detailContainer}>
@@ -180,7 +161,6 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
           </View>
         </View>
       </ScrollView>
-
       {/* End Walk Button */}
       <TouchableOpacity style={styles.endWalkButton} onPress={handleEndWalk}>
         <Text style={styles.endWalkButtonText}>{isTracking ? 'End Walk' : 'Start Walk'}</Text>
@@ -218,8 +198,8 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     marginHorizontal: 10
   },
-  map: {
-    height: 300,
+  mapContainer: {
+    height: 600,  // Fixed height for the map
     marginTop: 20,
     marginHorizontal: 10,
     borderRadius: 5,
