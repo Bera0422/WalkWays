@@ -12,8 +12,10 @@ const TrackingMap: React.FC = () => {
     const [directions, setDirections] = useState('');
 
     // Define the start and end coordinates for the route
-    const startCoords = { latitude: 37.7749, longitude: -122.4194 }; 
+    const startCoords = { latitude: 37.7749, longitude: -122.4194 };
     const endCoords = { latitude: 37.7849, longitude: -122.4094 };
+
+    const apiKey: string = process.env.GOOGLE_MAPS_API_KEY || "";
 
     useEffect(() => {
         // Request location permissions and set up real-time tracking
@@ -66,7 +68,7 @@ const TrackingMap: React.FC = () => {
                         origin={startCoords}
                         destination={endCoords}
                         mode='WALKING'
-                        apikey=""
+                        apikey={apiKey}
                         strokeWidth={4}
                         strokeColor="blue"
                         onReady={handleDirections} // To handle directions text update
@@ -81,8 +83,8 @@ const TrackingMap: React.FC = () => {
 
             {/* Display Directions */}
             {/* <View style={styles.directionsContainer}> */}
-                {/* <Text style={styles.directionsText}>Directions: {directions}</Text> */}
-                {/* <View style={styles.instructionContainer}>
+            {/* <Text style={styles.directionsText}>Directions: {directions}</Text> */}
+            {/* <View style={styles.instructionContainer}>
                     <RenderHTML
                         contentWidth={width}
                         source={{ html: directions }}
