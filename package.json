@@ -1,0 +1,49 @@
+{
+  "name": "walkways",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "expo start --dev-client",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.0.0",
+    "@react-native-community/masked-view": "^0.1.11",
+    "@react-navigation/bottom-tabs": "^6.6.1",
+    "@react-navigation/native": "^6.1.18",
+    "@react-navigation/native-stack": "^6.11.0",
+    "@react-navigation/stack": "^6.4.1",
+    "expo": "~51.0.28",
+    "expo-checkbox": "~3.0.0",
+    "expo-file-system": "~17.0.1",
+    "expo-image-picker": "~15.0.7",
+    "expo-location": "~17.0.1",
+    "expo-sensors": "~13.0.9",
+    "expo-status-bar": "~1.12.1",
+    "firebase": "^11.0.1",
+    "react": "18.2.0",
+    "react-native": "0.74.5",
+    "react-native-dotenv": "^3.4.11",
+    "react-native-firebase": "^5.6.0",
+    "react-native-fs": "^2.20.0",
+    "react-native-gesture-handler": "^2.20.2",
+    "react-native-get-random-values": "^1.11.0",
+    "react-native-image-base64": "^0.1.4",
+    "react-native-maps": "^1.18.2",
+    "react-native-maps-directions": "^1.9.0",
+    "react-native-reanimated": "^3.16.1",
+    "react-native-render-html": "^6.3.4",
+    "react-native-safe-area-context": "^4.12.0",
+    "react-native-screens": "^3.35.0",
+    "uuid": "^11.0.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0",
+    "@iconify/react": "^5.0.2",
+    "@types/react": "~18.2.45",
+    "@types/react-native": "^0.73.0",
+    "typescript": "^5.1.3"
+  },
+  "private": true
+}
