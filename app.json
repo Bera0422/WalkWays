@@ -13,17 +13,22 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.walkways",
-      "permissions": ["LOCATION"]
+      "bundleIdentifier": "com.walkways"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.walkways"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "bcab4c1f-98e8-46c7-8481-686ed4908ec2"
+      }
     }
   }
 }

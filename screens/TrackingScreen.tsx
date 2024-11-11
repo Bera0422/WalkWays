@@ -122,7 +122,7 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
       <StatusBar barStyle="light-content" />
       <ScrollView>
         {/* Friends List (Horizontal Scroll) */}
-        {/* <View>
+        <View>
           <Text style={styles.friendsText} >Friends on this route</Text>
           <FlatList
             data={avatars}
@@ -137,10 +137,10 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
             contentContainerStyle={styles.friendAvatarContainer}
             showsHorizontalScrollIndicator={false}
           />
-        </View> */}
+        </View>
 
         {/* Map View */}
-        {/* <MapView
+        <MapView
           style={styles.map}
           initialRegion={{
             latitude: 37.78825,
@@ -148,9 +148,9 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
           }}
-        > */}
+        >
         {/* Placeholder Polyline Route */}
-        {/* <Polyline
+        <Polyline
             coordinates={[
               { latitude: 37.78825, longitude: -122.4324 },
               { latitude: 37.78525, longitude: -122.4324 },
@@ -158,9 +158,9 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
             strokeColor="#0000FF"
             strokeWidth={3}
           />
-        </MapView> */}
+        </MapView>
 
-        <MapComponent></MapComponent>
+        {/* <MapComponent></MapComponent> */}
 
         {/* Walk Details */}
         <View style={styles.walkDetails}>

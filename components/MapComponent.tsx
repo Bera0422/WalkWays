@@ -60,7 +60,7 @@ const MapComponent = () => {
                     <MapViewDirections
                         origin={startCoords}
                         destination={endCoords}
-                        apikey="AIzaSyCqUBbguSneKYTN-MUKfY0bM3_vUuvYHnE"
+                        apikey=""
                         strokeWidth={4}
                         strokeColor="blue"
                         onReady={handleDirections} // To handle directions text update
