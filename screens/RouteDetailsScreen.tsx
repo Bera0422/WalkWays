@@ -15,10 +15,12 @@ import { RouteDetailsScreenRouteProp, RouteDetailsScreenNavigationProp } from '.
 import { FontAwesome } from '@expo/vector-icons'; // For star icons
 import Review from '../components/Review';
 import { Dimensions } from 'react-native';
-import MapView, { Polyline } from 'react-native-maps';
+import MapView, { Marker, Polyline } from 'react-native-maps';
 import { IReview, Route } from '../src/types/types';
 import { fetchRouteDetails, fetchRouteReviews } from '../firestoreService';
 import Tag from '../components/Tag';
+import MapViewDirections from 'react-native-maps-directions';
+
 
 const win = Dimensions.get('window');
 
@@ -28,10 +30,13 @@ interface Props {
 }
 
 const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY || "";
+
   const [routeReviews, setRouteReviews] = useState<IReview[]>([]);
   const routeId = route.params.routeItem.id;
 
   const [routeDetails, setRouteDetails] = useState<Route>();
+  const [waypoints, setWaypoints] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -40,6 +45,7 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
       try {
         const fetchedRouteDetails = await fetchRouteDetails(routeId); // Call the Firestore fetch function
         setRouteDetails(fetchedRouteDetails);
+        setWaypoints(fetchedRouteDetails.details.waypoints.map(waypoint => { return { latitude: waypoint.latitude, longitude: waypoint.longitude } }))
       } catch (error) {
         console.error("Failed to fetch route:", error);
       } finally {
@@ -120,23 +126,26 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 
         {/* Map View */}
         <MapView
+          provider='google'
           style={styles.map}
           initialRegion={{
             latitude: routeDetails.details.location.latitude,
             longitude: routeDetails.details.location.longitude,
             latitudeDelta: 0.01,
             longitudeDelta: 0.005,
-          }}
-        >
-          {/* Placeholder Polyline Route */}
-          <Polyline
-            coordinates={[
-              { latitude: 37.78825, longitude: -122.4324 },
-              { latitude: 37.78525, longitude: -122.4324 },
-            ]}
-            strokeColor="#0000FF"
-            strokeWidth={3}
+          }}>
+          <MapViewDirections
+            origin={waypoints[0]}
+            destination={waypoints[1]}
+            waypoints={waypoints}
+            mode="WALKING"
+            apikey={apiKey}
+            strokeWidth={2}
+            strokeColor="blue"
           />
+
+          <Marker coordinate={waypoints[0]} title="Start" pinColor="green" />
+          <Marker coordinate={waypoints[1]} title="End" pinColor='red' />
         </MapView>
 
         {/* Stats */}
@@ -182,7 +191,7 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
       >
         <Text style={styles.startWalkText}>Start Walk</Text>
       </TouchableOpacity>
-    </SafeAreaView>
+    </SafeAreaView >
   );
 };
 

@@ -30,29 +30,33 @@ export const fetchRoutes = async () => {
 };
 
 export const fetchRouteDetails = async (routeId: string) => {
-    const routeReference = doc(db, 'routes', routeId);
-    const routeSnapshot = await getDoc(routeReference);
+    try {
+        const routeReference = doc(db, 'routes', routeId);
+        const routeSnapshot = await getDoc(routeReference);
 
-    if (routeSnapshot.exists()) {
-        const routeData = routeSnapshot.data();
-        const tagDocIDs = routeData?.tagIDs || [];
-        const tagPromises = tagDocIDs.map((tagDoc: any) => getDoc(tagDoc));
-        const tagDocs = await Promise.all(tagPromises);
-        const tags = tagDocs.map(tagDoc => { return { id: tagDoc.id, ...tagDoc.data() } });
+        if (routeSnapshot.exists()) {
+            const routeData = routeSnapshot.data();
+            const tagDocIDs = routeData?.tagIDs || [];
+            const tagPromises = tagDocIDs.map((tagDoc: any) => getDoc(tagDoc));
+            const tagDocs = await Promise.all(tagPromises);
+            const tags = tagDocs.map(tagDoc => { return { id: tagDoc.id, ...tagDoc.data() } });
 
-        const imageUrls = routeData.details.images ? await Promise.all(
-            routeData.details.images.map((imageRef: string) => getDownloadURL(ref(storage, imageRef)))) : [];
+            const imageUrls = routeData.details.images ? await Promise.all(
+                routeData.details.images.map((imageRef: string) => getDownloadURL(ref(storage, imageRef)))) : [];
 
-        const { tagIDs, ...route } = routeData;
-        return {
-            id: routeSnapshot.id,
-            ...route,
-            tags,
-            details: {
-                ...route.details,
-                images: imageUrls,
-            }
-        } as Route;
+            const { tagIDs, ...route } = routeData;
+            return {
+                id: routeSnapshot.id,
+                ...route,
+                tags,
+                details: {
+                    ...route.details,
+                    images: imageUrls,
+                }
+            } as Route;
+        }
+    } catch (error) {
+        console.error("Error fetching route details:", error);
     }
     throw new Error("Route not found!");
 };

@@ -9,6 +9,7 @@ export interface Route  {
     elevation: string;
     tags: { id: string; name: string; icon: string }[];
     details: {
+      waypoints: GeoPoint[];
       images: string[];
       description: string;
       location: GeoPoint;
