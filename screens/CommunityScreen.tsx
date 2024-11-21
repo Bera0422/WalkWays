@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, StyleSheet, TouchableOpacity, Text, StatusBar, ActivityIndicator } from 'react-native';
-import PostCard from '../components/PostCard';
-import SearchBar from '../components/SearchBar';
+import PostCard from '../src/components/PostCard';
+import SearchBar from '../src/components/SearchBar';
 import { fetchCommunityPosts } from '../firestoreService';
 
 const CommunityScreen: React.FC = () => {

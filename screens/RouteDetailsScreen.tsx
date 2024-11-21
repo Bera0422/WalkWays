@@ -13,12 +13,12 @@ import {
 } from 'react-native';
 import { RouteDetailsScreenRouteProp, RouteDetailsScreenNavigationProp } from '../src/types/props';
 import { FontAwesome } from '@expo/vector-icons'; // For star icons
-import Review from '../components/Review';
+import Review from '../src/components/Review';
 import { Dimensions } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import { IReview, Route } from '../src/types/types';
 import { fetchRouteDetails, fetchRouteReviews } from '../firestoreService';
-import Tag from '../components/Tag';
+import Tag from '../src/components/Tag';
 import MapViewDirections from 'react-native-maps-directions';
 
 
@@ -136,16 +136,21 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
           }}>
           <MapViewDirections
             origin={waypoints[0]}
-            destination={waypoints[1]}
+            destination={waypoints[waypoints.length-1]}
             waypoints={waypoints}
             mode="WALKING"
             apikey={apiKey}
-            strokeWidth={2}
-            strokeColor="blue"
+            strokeWidth={2} 
+            strokeColor="#FF6347" 
+            lineCap="round" 
+            lineJoin="round"
+            geodesic={true} 
+            tappable={true}
           />
 
+
           <Marker coordinate={waypoints[0]} title="Start" pinColor="green" />
-          <Marker coordinate={waypoints[1]} title="End" pinColor='red' />
+          <Marker coordinate={waypoints[waypoints.length - 1]} title="End" pinColor='red' />
         </MapView>
 
         {/* Stats */}

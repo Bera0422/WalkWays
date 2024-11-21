@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, TouchableWithoutFeedback, Keyboard, StatusBar, ActivityIndicator } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import RouteCard from '../components/RouteCard';
-import SearchBar from '../components/SearchBar';
+import RouteCard from '../src/components/RouteCard';
+import SearchBar from '../src/components/SearchBar';
 import _routes from '../data/routes';
 import { fetchRoutes, fetchTags } from '../firestoreService';
 import { Route } from '../src/types/types';

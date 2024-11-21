@@ -3,21 +3,21 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, Button, TouchableOpacity, FlatList, SafeAreaView, StatusBar, AppStateStatus, AppState } from 'react-native';
 import MapView, { Polyline } from 'react-native-maps';
 import { TrackingScreenNavigationProp, TrackingScreenRouteProp } from '../src/types/props';
-import Timer from '../components/Timer';
+import Timer from '../src/components/Timer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Pedometer } from 'expo-sensors';
-import TrackingMap from '../components/TrackingMap';
+import TrackingMap from '../src/components/TrackingMap';
 
 const avatars = [
-  { avatarId: '1', uri: require('../assets/avatars/1.jpg') },
-  { avatarId: '2', uri: require('../assets/avatars/72.jpg') },
-  { avatarId: '3', uri: require('../assets/avatars/5.jpg') },
-  { avatarId: '4', uri: require('../assets/avatars/8.jpg') },
-  { avatarId: '5', uri: require('../assets/avatars/14.jpg') },
-  { avatarId: '6', uri: require('../assets/avatars/26.jpg') },
-  { avatarId: '7', uri: require('../assets/avatars/27.jpg') },
-  { avatarId: '8', uri: require('../assets/avatars/35.jpg') },
-  { avatarId: '9', uri: require('../assets/avatars/42.jpg') },
+  { avatarId: '1', uri: require('../src/assets/avatars/1.jpg') },
+  { avatarId: '2', uri: require('../src/assets/avatars/72.jpg') },
+  { avatarId: '3', uri: require('../src/assets/avatars/5.jpg') },
+  { avatarId: '4', uri: require('../src/assets/avatars/8.jpg') },
+  { avatarId: '5', uri: require('../src/assets/avatars/14.jpg') },
+  { avatarId: '6', uri: require('../src/assets/avatars/26.jpg') },
+  { avatarId: '7', uri: require('../src/assets/avatars/27.jpg') },
+  { avatarId: '8', uri: require('../src/assets/avatars/35.jpg') },
+  { avatarId: '9', uri: require('../src/assets/avatars/42.jpg') },
 
 ]
 
@@ -34,10 +34,17 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
   const [stepCount, setStepCount] = useState(0);
   const [isTracking, setIsTracking] = useState(false);
   const [savedRouteId, setSavedRouteId] = useState(-1);
+  const [distanceWalked, setDistanceWalked] = useState(0);
 
   useEffect(() => {
     const subscription = Pedometer.watchStepCount((result: any) => {
       setStepCount(result.steps);
+      // Assuming average step length in meters, adjust as needed (e.g., user profile setting).
+      const stepLength = 0.762; // Average step length in meters (adjustable).
+      const distanceFromSteps = result.steps * stepLength;
+
+      // Update total distance with GPS-based distance and step-based estimate.
+      setDistanceWalked((prevDistance) => Math.min(prevDistance, distanceFromSteps));
     });
     return () => subscription.remove();
   }, []);
@@ -109,6 +116,10 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
     // Additional logic to handle ending the walk
   };
 
+  const updateDistanceWalked = (distance: number) => {
+    setDistanceWalked((prevDistance) => prevDistance + distance);
+  };
+
   if (!isTracking) {
     return (
       <View style={styles.noWalkContainer}>
@@ -141,19 +152,18 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
 
         {/* Map View */}
         <View style={styles.mapContainer}>
-        <TrackingMap/>
+          <TrackingMap updateDistanceWalked={updateDistanceWalked} />
         </View>
         {/* Walk Details */}
         <View style={styles.walkDetails}>
           <View style={styles.detailContainer}>
             <Text style={styles.detailLabel}>Time Elapsed</Text>
-            {/* <Text style={styles.detailValue}>25 min</Text> */}
             <Timer initialTime={elapsedTime} isActive={isTracking} onComplete={handleEndWalk} />
           </View>
 
           <View style={styles.detailContainer}>
             <Text style={styles.detailLabel}>Distance Walked</Text>
-            <Text style={styles.detailValue}>1.2 miles</Text>
+            <Text style={styles.detailValue}>{(distanceWalked / 1000).toFixed(2)} km</Text>
           </View>
           <View style={styles.detailContainer}>
             <Text style={styles.detailLabel}>Step Count</Text>
