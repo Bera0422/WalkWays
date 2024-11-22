@@ -4,8 +4,8 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import RouteCard from '../src/components/RouteCard';
 import SearchBar from '../src/components/SearchBar';
 import _routes from '../data/routes';
-import { fetchRoutes, fetchTags } from '../firestoreService';
 import { Route } from '../src/types/types';
+import { fetchRoutes, fetchTags } from '../src/services/firestoreService';
 
 const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [routes, setRoutes] = useState<Route[]>([]);

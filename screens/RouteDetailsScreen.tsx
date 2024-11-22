@@ -17,7 +17,7 @@ import Review from '../src/components/Review';
 import { Dimensions } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import { IReview, Route } from '../src/types/types';
-import { fetchRouteDetails, fetchRouteReviews } from '../firestoreService';
+import { fetchRouteDetails, fetchRouteReviews } from '../src/services/firestoreService';
 import Tag from '../src/components/Tag';
 import MapViewDirections from 'react-native-maps-directions';
 

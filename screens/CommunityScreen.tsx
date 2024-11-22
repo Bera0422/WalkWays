@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, FlatList, StyleSheet, TouchableOpacity, Text, StatusBar, ActivityIndicator } from 'react-native';
 import PostCard from '../src/components/PostCard';
 import SearchBar from '../src/components/SearchBar';
-import { fetchCommunityPosts } from '../firestoreService';
+import { fetchCommunityPosts } from '../src/services/firestoreService';
 
 const CommunityScreen: React.FC = () => {
     const [posts, setPosts] = useState<any[]>([]);

@@ -1,9 +1,9 @@
-import { db, storage } from './firebaseConfig';
 import { collection, doc, getDocs, getDoc, query, where, addDoc, updateDoc } from 'firebase/firestore';
-import { IReview, Route } from './src/types/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 import 'react-native-get-random-values';
+import { db, storage } from '../../firebaseConfig';
+import { IReview, Route } from '../types/types';
 
 export const fetchRoutes = async () => {
     const routesCollection = collection(db, 'routes');
@@ -221,3 +221,33 @@ export const uploadImage = async (uri: string, folderName: string = 'images') =>
         );
     });
 };
+
+export const saveCompletedRoute = async (routeData: any) => {
+    try {
+        const docRef = await addDoc(collection(db, 'completedRoutes'), routeData);
+        console.log("completed route saved with ID:", docRef.id);
+        return docRef.id;
+    } catch (error) {
+        console.error("error saving completed route:", error);
+    }
+}
+
+export const updateUsersCompletedRoutes = async (routeId: string, userId: string = "mbD9wmGK0fqGH62vxrxV") => {
+    try {
+        const routeRef = doc(db, 'completedRoutes', routeId)
+
+        const userRef = doc(db, 'users', userId);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+            const userData = userSnap.data();
+            const completedRoutes = userData.completedRoutes;
+            await updateDoc(userRef, { completedRoutes: {...completedRoutes, routeRef }});
+            console.log("User updated with route ID:", routeRef.id);
+            return userRef.id
+        }
+        return null;
+    } catch (error) {
+        console.error("error saving completed route:", error);
+    }
+}
+

@@ -8,7 +8,7 @@ import CheckBox from 'expo-checkbox';
 import MediaUpload from '../src/components/MediaUpload';
 import { ScrollView } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { fetchTags, saveCommunityPost, saveReview, uploadImage } from '../firestoreService';
+import { fetchTags, saveCommunityPost, saveReview, uploadImage } from '../src/services/firestoreService';
 import { IReview } from '../src/types/types';
 import { Timestamp } from 'firebase/firestore';
 

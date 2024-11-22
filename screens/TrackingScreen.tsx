@@ -7,6 +7,9 @@ import Timer from '../src/components/Timer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Pedometer } from 'expo-sensors';
 import TrackingMap from '../src/components/TrackingMap';
+import { convertDistance } from 'geolib';
+import { Timestamp } from 'firebase/firestore';
+import { saveCompletedRoute, updateUsersCompletedRoutes } from '../src/services/firestoreService';
 
 const avatars = [
   { avatarId: '1', uri: require('../src/assets/avatars/1.jpg') },
@@ -40,7 +43,7 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
     const subscription = Pedometer.watchStepCount((result: any) => {
       setStepCount(result.steps);
       // Assuming average step length in meters, adjust as needed (e.g., user profile setting).
-      const stepLength = 0.762; // Average step length in meters (adjustable).
+      const stepLength = 0.762; // Average step length in miles (adjustable).
       const distanceFromSteps = result.steps * stepLength;
 
       // Update total distance with GPS-based distance and step-based estimate.
@@ -48,6 +51,26 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
     });
     return () => subscription.remove();
   }, []);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+
+    if (isTracking) {
+      interval = setInterval(() => {
+        setElapsedTime((prev) => prev + 1);
+      }, 1000);
+    } else {
+      if (interval) {
+        clearInterval(interval);
+      }
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [isTracking, elapsedTime]);
 
   useEffect(() => {
     loadTrackingData();
@@ -110,10 +133,29 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
   const handleEndWalk = async () => {
     // setIsTimerActive(false);
     console.log("Ending walk: ", route)
+    
+
+    const routeData =
+    {
+      routeId: routeId,
+      distanceWalked: distanceWalked,
+      stepsWalked: stepCount,
+      timeTaken: elapsedTime,
+      timestamp: Timestamp.now(),
+    };
+    try {
+      const completedRouteId = await saveCompletedRoute(routeData) || "";
+      console.log('completed route saved:', routeData);
+      const userId = await updateUsersCompletedRoutes(completedRouteId, "mbD9wmGK0fqGH62vxrxV");
+      console.log('completed route added to the user: ', userId);
+
+    } catch (error) {
+      console.error('error saving completed route:', error);
+    }
+
     setIsTracking(false);
     await AsyncStorage.removeItem('trackingData');
     navigation.navigate('Feedback', { routeId: routeId })
-    // Additional logic to handle ending the walk
   };
 
   const updateDistanceWalked = (distance: number) => {
@@ -158,12 +200,11 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
         <View style={styles.walkDetails}>
           <View style={styles.detailContainer}>
             <Text style={styles.detailLabel}>Time Elapsed</Text>
-            <Timer initialTime={elapsedTime} isActive={isTracking} onComplete={handleEndWalk} />
+            <Timer seconds={elapsedTime} />
           </View>
-
           <View style={styles.detailContainer}>
             <Text style={styles.detailLabel}>Distance Walked</Text>
-            <Text style={styles.detailValue}>{(distanceWalked / 1000).toFixed(2)} km</Text>
+            <Text style={styles.detailValue}>{convertDistance(distanceWalked, 'mi').toFixed(2)} miles</Text>
           </View>
           <View style={styles.detailContainer}>
             <Text style={styles.detailLabel}>Step Count</Text>
