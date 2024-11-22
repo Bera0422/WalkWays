@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, getDoc, query, where, addDoc, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDocs, getDoc, query, where, addDoc, updateDoc, setDoc, arrayUnion } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 import 'react-native-get-random-values';
@@ -37,6 +37,7 @@ export const fetchRouteDetails = async (routeId: string) => {
         if (routeSnapshot.exists()) {
             const routeData = routeSnapshot.data();
             const tagDocIDs = routeData?.tagIDs || [];
+            console.log(tagDocIDs);
             const tagPromises = tagDocIDs.map((tagDoc: any) => getDoc(tagDoc));
             const tagDocs = await Promise.all(tagPromises);
             const tags = tagDocs.map(tagDoc => { return { id: tagDoc.id, ...tagDoc.data() } });
@@ -110,11 +111,11 @@ export const fetchTags = async () => {
     return tags;
 };
 
-export const saveReview = async (reviewData: any) => {
+export const saveReview = async (reviewData: any, userId: string = "mbD9wmGK0fqGH62vxrxV") => {
     const routeRef = doc(db, 'routes', reviewData.routeId);
     const review = {
         ...reviewData,
-        userId: doc(db, 'users', 'mbD9wmGK0fqGH62vxrxV'),
+        userId: doc(db, 'users', userId),
         routeId: routeRef,
         tags: reviewData.tags.map((tagId: string) => doc(db, 'tags', tagId))
     }
@@ -136,9 +137,9 @@ export const saveReview = async (reviewData: any) => {
     }
 }
 
-export const saveCommunityPost = async (data: any) => {
+export const saveCommunityPost = async (data: any, userId: string = "mbD9wmGK0fqGH62vxrxV") => {
     const post = {
-        userId: doc(db, 'users', 'mbD9wmGK0fqGH62vxrxV'),
+        userId: doc(db, 'users', userId),
         tags: data.tags.map((tagId: string) => doc(db, 'tags', tagId)),
         images: [data.media],
         text: data.text,
@@ -239,9 +240,7 @@ export const updateUsersCompletedRoutes = async (routeId: string, userId: string
         const userRef = doc(db, 'users', userId);
         const userSnap = await getDoc(userRef);
         if (userSnap.exists()) {
-            const userData = userSnap.data();
-            const completedRoutes = userData.completedRoutes;
-            await updateDoc(userRef, { completedRoutes: {...completedRoutes, routeRef }});
+            await updateDoc(userRef, { completedRoutes: arrayUnion(routeRef)});
             console.log("User updated with route ID:", routeRef.id);
             return userRef.id
         }
@@ -251,3 +250,55 @@ export const updateUsersCompletedRoutes = async (routeId: string, userId: string
     }
 }
 
+export const createUserProfile = async (userId: string, profileData: any) => {
+    try {
+        const docRef = await setDoc(doc(db, 'users', userId), profileData);
+        console.log("user saved with ID:", docRef);
+        return docRef;
+    } catch (error) {
+        console.error("error saving user:", error);
+    }
+};
+
+/**
+* Fetch user profile data from Firestore
+* @param userId - User ID
+* @returns User profile data
+*/
+export const fetchUserProfile = async (userId: string) => {
+    const userDocRef = doc(db, 'users', userId);
+    const userDoc = await getDoc(userDocRef);
+    // return userDoc.exists() ? userDoc.data() : null;
+
+    if (userDoc.exists()) {
+        const userData: any = userDoc.data();
+        const profilePhotoUrl = userData.profilePhoto ? await getDownloadURL(ref(storage, userData.profilePhoto)) : '';
+        const { profilePhoto, ...data } = userData
+        return { profilePhoto: profilePhotoUrl, ...data }
+    }
+
+    return null;
+};
+
+/**
+ * Fetch user walk history from Firestore
+ * @param userId - User ID
+ * @returns Array of walk history items
+ */
+//TODO: Find an efficient way to fetch the user walk history
+export const fetchUserWalkHistory = async (userId: string) => {
+    const userDocRef = doc(db, 'users', userId);
+    const userDoc = await getDoc(userDocRef);
+    if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const completedRoutesIds = userData?.completedRoutes || [];
+        console.log(completedRoutesIds);
+        const completedRoutesPromises = completedRoutesIds.map((completedRouteDoc: any) => getDoc(completedRouteDoc));
+        const completedRouteDocs = await Promise.all(completedRoutesPromises);
+        const completedRoutes = completedRouteDocs.map(completedRouteDoc => { return { id: completedRouteDoc.id, ...completedRouteDoc.data() } });
+
+       return completedRoutes;
+    }
+
+    return [];
+};

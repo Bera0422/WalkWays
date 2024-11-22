@@ -30,6 +30,12 @@ export type RootStackParamList = {
     screen: string;
   }
   Community: undefined;
+  ProfileStack: {
+    screen: string;
+  }
+  Profile: undefined;
+  SignUp: undefined;
+  Login: undefined;
 };
 
 export type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
@@ -42,3 +48,9 @@ export type TrackingScreenNavigationProp = StackNavigationProp<RootStackParamLis
 
 export type FeedbackScreenRouteProp = RouteProp<RootStackParamList, 'Feedback'>;
 export type FeedbackScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Feedback'>;
+
+export type SignUpScreenRouteProp = RouteProp<RootStackParamList, 'SignUp'>;
+export type SignUpScreenNavigationProp = StackNavigationProp<RootStackParamList, 'SignUp'>;
+
+export type LoginScreenRouteProp = RouteProp<RootStackParamList, 'Login'>;
+export type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;

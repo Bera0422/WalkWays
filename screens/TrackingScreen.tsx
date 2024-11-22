@@ -10,6 +10,8 @@ import TrackingMap from '../src/components/TrackingMap';
 import { convertDistance } from 'geolib';
 import { Timestamp } from 'firebase/firestore';
 import { saveCompletedRoute, updateUsersCompletedRoutes } from '../src/services/firestoreService';
+import { getAuth } from 'firebase/auth';
+import { useAuth } from '../src/context/AuthContext';
 
 const avatars = [
   { avatarId: '1', uri: require('../src/assets/avatars/1.jpg') },
@@ -31,7 +33,8 @@ interface Props {
 
 const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
   const routeId = route.params?.routeId;
-
+  const { user, loading: authLoading } = useAuth();
+  
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [stepCount, setStepCount] = useState(0);
@@ -146,7 +149,7 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
     try {
       const completedRouteId = await saveCompletedRoute(routeData) || "";
       console.log('completed route saved:', routeData);
-      const userId = await updateUsersCompletedRoutes(completedRouteId, "mbD9wmGK0fqGH62vxrxV");
+      const userId = await updateUsersCompletedRoutes(completedRouteId, user?.uid);
       console.log('completed route added to the user: ', userId);
 
     } catch (error) {

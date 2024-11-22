@@ -8,6 +8,10 @@ import TrackingScreen from './screens/TrackingScreen';
 import FeedbackScreen from './screens/FeedbackScreen';
 import CommunityScreen from './screens/CommunityScreen';
 import { RootStackParamList } from './src/types/props';
+import ProfileScreen from './screens/ProfileScreen';
+import LoginScreen from './screens/LoginScreen';
+import SignUpScreen from './screens/SignUpScreen';
+import { useAuth } from './src/context/AuthContext';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -72,7 +76,48 @@ function CommunityStack() {
   );
 }
 
+function ProfileStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          title: 'Your Profile',
+          headerStyle: { backgroundColor: '#6A2766' },
+          headerTintColor: '#fff',
+        }} />
+    </Stack.Navigator>
+  );
+}
+
+function AuthStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{
+          title: 'Login',
+          headerStyle: { backgroundColor: '#6A2766' },
+          headerTintColor: '#fff',
+        }} />
+      <Stack.Screen
+        name="SignUp"
+        component={SignUpScreen}
+        options={{
+          title: 'Sign Up',
+          headerStyle: { backgroundColor: '#6A2766' },
+          headerTintColor: '#fff',
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
 export default function Navigation() {
+  const user = useAuth();
+  console.log(user.user);
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
       <Tab.Screen
@@ -96,7 +141,23 @@ export default function Navigation() {
           title: 'Community',
         }}
       />
-      {/* Profile Tab would be added later */}
+      {user.user ? (
+        <Tab.Screen
+          name="ProfileStack"
+          component={ProfileStack}
+          options={{
+            title: 'Profile',
+          }}
+        />
+      ) : (
+        <Tab.Screen
+          name="AuthStack"
+          component={AuthStack}
+          options={{
+            title: 'Login'
+          }}
+        />
+      )}
     </Tab.Navigator>
   );
 }

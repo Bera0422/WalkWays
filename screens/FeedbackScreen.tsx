@@ -11,6 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchTags, saveCommunityPost, saveReview, uploadImage } from '../src/services/firestoreService';
 import { IReview } from '../src/types/types';
 import { Timestamp } from 'firebase/firestore';
+import { useAuth } from '../src/context/AuthContext';
 
 type Feedback = {
     routeId: string;
@@ -26,6 +27,8 @@ interface Props {
 }
 
 const FeedbackScreen: React.FC<Props> = ({ route, navigation }) => {
+    const { user, loading: authLoading } = useAuth();
+    
     const [rating, setRating] = useState<number>(4);
     const [shareWithCommunity, setShareWithCommunity] = useState<boolean>(false);
     const [reviewMessage, setReviewMessages] = useState<string>('');
@@ -131,13 +134,13 @@ const FeedbackScreen: React.FC<Props> = ({ route, navigation }) => {
         };
 
         try {
-            await saveReview(reviewData);
+            await saveReview(reviewData, user?.uid);
             if (shareWithCommunity) {
                 const communityPostData = {
                     ...reviewData,
                     timestamp: new Date(),
                 };
-                await saveCommunityPost(communityPostData);
+                await saveCommunityPost(communityPostData, user?.uid);
                 console.log('Community post saved:', reviewData);
             }
             console.log('Feedback saved:', reviewData);
