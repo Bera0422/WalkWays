@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
+import { View, TextInput, Button, Text, StyleSheet, Alert, TouchableOpacity, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { signUp } from '../src/services/authService';
 import { SignUpScreenNavigationProp } from '../src/types/props';
 
@@ -27,6 +27,8 @@ const SignUpScreen: React.FC<Props> = ({ navigation }) => {
     };
 
     return (
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+
         <View style={styles.container}>
             <Text style={styles.title}>Sign Up</Text>
             <TextInput
@@ -49,11 +51,14 @@ const SignUpScreen: React.FC<Props> = ({ navigation }) => {
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
             />
-            <Button title="Sign Up" onPress={handleSignUp} />
+            <TouchableOpacity style={styles.signupButton} onPress={handleSignUp}>
+                <Text style={styles.signupButtonText}>Sign Up</Text>
+            </TouchableOpacity>
             <Text onPress={() => navigation.navigate("Login")} style={styles.switchText}>
                 Already have an account? Log In
             </Text>
         </View>
+        </TouchableWithoutFeedback>
     );
 };
 
@@ -62,6 +67,26 @@ const styles = StyleSheet.create({
     title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
     input: { borderWidth: 1, padding: 10, marginVertical: 10, borderRadius: 5 },
     switchText: { textAlign: 'center', marginTop: 10, color: 'blue' },
+    signupButton: {
+        backgroundColor: '#2196f3', // Blue background for signup
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        marginVertical: 10,
+        width: '50%',
+        alignSelf: 'center',
+    },
+    signupButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
 });
 
 export default SignUpScreen;

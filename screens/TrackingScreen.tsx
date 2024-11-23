@@ -1,17 +1,25 @@
-// TrackingScreen.tsx
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, Button, TouchableOpacity, FlatList, SafeAreaView, StatusBar, AppStateStatus, AppState } from 'react-native';
-import MapView, { Polyline } from 'react-native-maps';
-import { TrackingScreenNavigationProp, TrackingScreenRouteProp } from '../src/types/props';
-import Timer from '../src/components/Timer';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Pedometer } from 'expo-sensors';
-import TrackingMap from '../src/components/TrackingMap';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  SafeAreaView,
+  StatusBar,
+  AppState,
+  FlatList,
+  Image,
+} from 'react-native';
 import { convertDistance } from 'geolib';
 import { Timestamp } from 'firebase/firestore';
-import { saveCompletedRoute, updateUsersCompletedRoutes } from '../src/services/firestoreService';
-import { getAuth } from 'firebase/auth';
+import { Pedometer } from 'expo-sensors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../src/context/AuthContext';
+import TrackingMap from '../src/components/TrackingMap';
+import Timer from '../src/components/Timer';
+import { saveCompletedRoute, updateUsersCompletedRoutes } from '../src/services/firestoreService';
+import { TrackingScreenNavigationProp, TrackingScreenRouteProp } from '../src/types/props';
 
 const avatars = [
   { avatarId: '1', uri: require('../src/assets/avatars/1.jpg') },
@@ -23,7 +31,6 @@ const avatars = [
   { avatarId: '7', uri: require('../src/assets/avatars/27.jpg') },
   { avatarId: '8', uri: require('../src/assets/avatars/35.jpg') },
   { avatarId: '9', uri: require('../src/assets/avatars/42.jpg') },
-
 ]
 
 interface Props {
@@ -33,8 +40,8 @@ interface Props {
 
 const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
   const routeId = route.params?.routeId;
-  const { user, loading: authLoading } = useAuth();
-  
+  const { user } = useAuth();
+
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [stepCount, setStepCount] = useState(0);
@@ -43,14 +50,13 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
   const [distanceWalked, setDistanceWalked] = useState(0);
 
   useEffect(() => {
-    const subscription = Pedometer.watchStepCount((result: any) => {
-      setStepCount(result.steps);
-      // Assuming average step length in meters, adjust as needed (e.g., user profile setting).
-      const stepLength = 0.762; // Average step length in miles (adjustable).
+    const subscription = Pedometer.watchStepCount((result) => {
+      const stepLength = 0.762; // Average step length in meters
       const distanceFromSteps = result.steps * stepLength;
-
-      // Update total distance with GPS-based distance and step-based estimate.
-      setDistanceWalked((prevDistance) => Math.min(prevDistance, distanceFromSteps));
+      setStepCount(result.steps);
+      setDistanceWalked((prevDistance) =>
+        Math.max(prevDistance, convertDistance(distanceFromSteps, 'km'))
+      );
     });
     return () => subscription.remove();
   }, []);
@@ -59,21 +65,24 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
     let interval: NodeJS.Timeout | null = null;
 
     if (isTracking) {
-      interval = setInterval(() => {
-        setElapsedTime((prev) => prev + 1);
-      }, 1000);
-    } else {
-      if (interval) {
-        clearInterval(interval);
-      }
+      interval = setInterval(() => setElapsedTime((prev) => prev + 1), 1000);
+    } else if (interval) {
+      clearInterval(interval);
     }
 
     return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
+      if (interval) clearInterval(interval);
     };
-  }, [isTracking, elapsedTime]);
+  }, [isTracking]);
+
+  const loadTimer = async () => {
+    const savedStartTime = await AsyncStorage.getItem('startTime');
+    if (savedStartTime) {
+      const elapsed = Math.floor((Date.now() - parseInt(savedStartTime, 10)) / 1000);
+      setStartTime(parseInt(savedStartTime, 10));
+      setElapsedTime(elapsed);
+    }
+  };
 
   useEffect(() => {
     loadTrackingData();
@@ -84,81 +93,71 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
     };
   }, []);
 
-  const handleAppStateChange = async (nextAppState: AppStateStatus) => {
-    if (nextAppState === 'background' && isTracking) {
-      await saveTrackingData();
+  const handleAppStateChange = async (nextAppState: any) => {
+    if (nextAppState === 'background' && isTracking) await saveTrackingData();
+    if (nextAppState === 'active') {
+      loadTimer();
     }
   };
 
   const saveTrackingData = async () => {
     try {
-      await AsyncStorage.setItem(
-        'trackingData',
-        JSON.stringify({ startTime, elapsedTime, isTracking, savedRouteId })
-      );
+      const trackingData = { startTime, elapsedTime, isTracking, distanceWalked, savedRouteId };
+      await AsyncStorage.setItem('trackingData', JSON.stringify(trackingData));
     } catch (error) {
-      console.error('Failed to save tracking data:', error);
+      console.error('Error saving tracking data:', error);
     }
   };
 
   const loadTrackingData = async () => {
     try {
       const savedData = await AsyncStorage.getItem('trackingData');
-      console.log("SAVED DATA: " + savedData)
       if (savedData) {
         const parsedData = JSON.parse(savedData);
         if (parsedData.routeId === routeId) {
           setStartTime(parsedData.startTime);
           setIsTracking(parsedData.isTracking);
           setElapsedTime(parsedData.elapsedTime);
+          setDistanceWalked(parsedData.distanceWalked);
         }
         else {
           setSavedRouteId(parsedData.routeId);
-          resetTracking();
+          startTracking();
         }
       }
     } catch (error) {
-      console.error('Failed to load tracking data:', error);
+      console.error('Error loading tracking data:', error);
     }
   };
 
-  const startTracking = () => {
-    setStartTime(Date.now());
-    setIsTracking(true);
-  };
-
-  const resetTracking = () => {
-    setStartTime(Date.now());
-    setElapsedTime(0);
-    setIsTracking(true);
-  };
-
   const handleEndWalk = async () => {
-    // setIsTimerActive(false);
-    console.log("Ending walk: ", route)
-    
-
-    const routeData =
-    {
-      routeId: routeId,
-      distanceWalked: distanceWalked,
+    const routeData = {
+      routeId,
+      distanceWalked,
       stepsWalked: stepCount,
       timeTaken: elapsedTime,
       timestamp: Timestamp.now(),
     };
+
     try {
       const completedRouteId = await saveCompletedRoute(routeData) || "";
-      console.log('completed route saved:', routeData);
-      const userId = await updateUsersCompletedRoutes(completedRouteId, user?.uid);
-      console.log('completed route added to the user: ', userId);
-
+      await updateUsersCompletedRoutes(completedRouteId, user?.uid);
     } catch (error) {
-      console.error('error saving completed route:', error);
+      console.error('Error saving completed route:', error);
     }
 
     setIsTracking(false);
     await AsyncStorage.removeItem('trackingData');
-    navigation.navigate('Feedback', { routeId: routeId })
+    navigation.navigate('Feedback', { routeId });
+  };
+
+
+  const startTracking = async () => {
+    const now = Date.now();
+    setStartTime(now);
+    setElapsedTime(0);
+    await AsyncStorage.setItem('startTime', now.toString());
+    setIsTracking(true);
   };
 
   const updateDistanceWalked = (distance: number) => {
@@ -175,10 +174,10 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="dark-content" />
       <ScrollView>
         {/* Friends List (Horizontal Scroll) */}
-        <View>
+        {/* <View>
           <Text style={styles.friendsText} >Friends on this route</Text>
           <FlatList
             data={avatars}
@@ -193,13 +192,7 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
             contentContainerStyle={styles.friendAvatarContainer}
             showsHorizontalScrollIndicator={false}
           />
-        </View>
-
-        {/* Map View */}
-        <View style={styles.mapContainer}>
-          <TrackingMap updateDistanceWalked={updateDistanceWalked} />
-        </View>
-        {/* Walk Details */}
+        </View> */}
         <View style={styles.walkDetails}>
           <View style={styles.detailContainer}>
             <Text style={styles.detailLabel}>Time Elapsed</Text>
@@ -214,10 +207,13 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
             <Text style={styles.detailValue}>{stepCount}</Text>
           </View>
         </View>
+
+        <View style={styles.mapContainer}>
+          <TrackingMap updateDistanceWalked={updateDistanceWalked} />
+        </View>
       </ScrollView>
-      {/* End Walk Button */}
       <TouchableOpacity style={styles.endWalkButton} onPress={handleEndWalk}>
-        <Text style={styles.endWalkButtonText}>{isTracking ? 'End Walk' : 'Start Walk'}</Text>
+        <Text style={styles.endWalkButtonText}>End Walk</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -228,11 +224,69 @@ export default TrackingScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
-    backgroundColor: '#fff',
+    backgroundColor: '#f9f9f9',
   },
-  noWalkContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  noWalkText: { fontSize: 18, color: '#888' },
+  noWalkContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noWalkText: {
+    fontSize: 18,
+    color: '#555',
+  },
+  startWalkButton: {
+    marginTop: 20,
+    backgroundColor: '#4CAF50',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  startWalkButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  walkDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 20,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    marginHorizontal: 10,
+    marginVertical: 10,
+    elevation: 2,
+  },
+  detailContainer: {
+    alignItems: 'center',
+  },
+  detailLabel: {
+    fontSize: 14,
+    color: '#777',
+  },
+  detailValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  mapContainer: {
+    height: 500,
+    margin: 10,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  endWalkButton: {
+    backgroundColor: '#E53935',
+    paddingVertical: 15,
+    alignItems: 'center',
+    margin: 10,
+    borderRadius: 5,
+  },
+  endWalkButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   friendsText: {
     color: '#7F12AA',
     fontWeight: 'bold',
@@ -251,38 +305,5 @@ const styles = StyleSheet.create({
     height: 70,
     borderRadius: 50,
     marginHorizontal: 10
-  },
-  mapContainer: {
-    height: 600,  // Fixed height for the map
-    marginTop: 20,
-    marginHorizontal: 10,
-    borderRadius: 5,
-  },
-  walkDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginVertical: 10,
-  },
-  detailContainer: {
-    alignItems: 'center',
-  },
-  detailLabel: {
-    fontSize: 14,
-    color: '#333',
-  },
-  detailValue: {
-    fontSize: 30,
-    fontWeight: 'bold',
-  },
-  endWalkButton: {
-    backgroundColor: 'red',
-    paddingVertical: 15,
-    borderRadius: 2,
-    alignItems: 'center',
-  },
-  endWalkButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
 });

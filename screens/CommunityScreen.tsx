@@ -40,9 +40,9 @@ const CommunityScreen: React.FC = () => {
     return (
         <View style={styles.container}>
             <StatusBar barStyle="light-content" />
-            <View style={styles.header}>
+            {/* <View style={styles.header}>
                 <SearchBar placeholder='Search in your community' value={''} onChangeText={console.log} />
-            </View>
+            </View> */}
             <FlatList
                 data={posts}
                 keyExtractor={(item) => item.id}
@@ -71,7 +71,11 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         paddingHorizontal: 10
     },
-    postsList: { paddingHorizontal: 15, paddingBottom: 70 },
+    postsList: {
+        paddingHorizontal: 15,
+        paddingBottom: 70,
+        marginTop: 30,
+    },
     postButton: {
         position: 'absolute',
         bottom: 20,

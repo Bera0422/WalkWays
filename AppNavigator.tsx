@@ -12,6 +12,7 @@ import ProfileScreen from './screens/ProfileScreen';
 import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import { useAuth } from './src/context/AuthContext';
+import { MaterialCommunityIcons } from '@expo/vector-icons'; // or your preferred icon library
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -119,12 +120,22 @@ export default function Navigation() {
   const user = useAuth();
   console.log(user.user);
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false }}>
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: '#6200ea',
+        tabBarInactiveTintColor: '#666',
+        tabBarStyle: { backgroundColor: '#fff'},
+      }}
+    >
       <Tab.Screen
         name="HomeStack"
         component={HomeStack}
         options={{
           title: 'Home',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="home" color={color} size={size} />
+          ),
         }}
       />
       <Tab.Screen
@@ -132,6 +143,9 @@ export default function Navigation() {
         component={TrackingStack}
         options={{
           title: 'Track',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="map-marker-path" color={color} size={size} />
+          ),
         }}
       />
       <Tab.Screen
@@ -139,6 +153,9 @@ export default function Navigation() {
         component={CommunityStack}
         options={{
           title: 'Community',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="account-group" color={color} size={size} />
+          ),
         }}
       />
       {user.user ? (
@@ -147,6 +164,9 @@ export default function Navigation() {
           component={ProfileStack}
           options={{
             title: 'Profile',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="account-circle" color={color} size={size} />
+            ),
           }}
         />
       ) : (
@@ -154,7 +174,10 @@ export default function Navigation() {
           name="AuthStack"
           component={AuthStack}
           options={{
-            title: 'Login'
+            title: 'Login',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="login" color={color} size={size} />
+            ),
           }}
         />
       )}

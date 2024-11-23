@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Tag from './Tag';
-import { Route } from '../src/types/types';
+import { Route } from '../types/types';
 
 interface Props {
   item: Route,
@@ -17,7 +17,7 @@ const RouteCard: React.FC<Props> = ({ item, onPress }) => (
       {/* Rating */}
       <View style={styles.ratingContainer}>
         <Ionicons name="star" size={16} color="#FFD700" />
-        <Text style={styles.ratingText}>{item.rating}</Text>
+        <Text style={styles.ratingText}>{item.rating.toFixed(1)}</Text>
       </View>
 
       <View style={styles.cardContent}>

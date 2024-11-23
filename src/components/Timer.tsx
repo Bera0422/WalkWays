@@ -21,8 +21,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   timerText: {
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: 'bold',
+    color: '#333',
   },
 });
 
