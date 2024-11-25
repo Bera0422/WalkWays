@@ -122,7 +122,7 @@ const FeedbackScreen: React.FC<Props> = ({ route, navigation }) => {
         }
 
         const feedbackData = {
-            userId: user?.uid || '',
+            userId: user?.uid,
             routeId,
             rating,
             text: reviewMessage,

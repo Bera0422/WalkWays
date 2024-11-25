@@ -113,7 +113,8 @@ export const fetchTags = async () => {
     return tags;
 };
 
-export const saveReview = async (reviewData: any, userId: string = DEFAULT_USER_ID) => {
+export const saveReview = async (reviewData: any) => {
+    const userId = reviewData.userId || DEFAULT_USER_ID;
     const routeRef = doc(db, 'routes', reviewData.routeId);
     const review = {
         ...reviewData,
@@ -139,7 +140,8 @@ export const saveReview = async (reviewData: any, userId: string = DEFAULT_USER_
     }
 }
 
-export const saveCommunityPost = async (data: any, userId: string = DEFAULT_USER_ID) => {
+export const saveCommunityPost = async (data: any) => {
+    const userId = data.userId;
     const post = {
         userId: doc(db, 'users', userId),
         routeName: data.routeName,

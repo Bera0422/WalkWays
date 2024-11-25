@@ -3,7 +3,7 @@ import { auth } from '../../firebaseConfig';
 import { createUserProfile } from './firestoreService';
 import { Timestamp } from 'firebase/firestore';
 
-export const signUp = async (email: string, password: string) => {
+export const signUp = async (name: string, email: string, password: string) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     try {
@@ -13,7 +13,7 @@ export const signUp = async (email: string, password: string) => {
         email: email,
         favorites: [],
         lastLogin: Timestamp.now(),
-        name: "John Doe", //TODO: Replace
+        name: name,
         preferences: {
           language: "en",
           notificationSettings: {

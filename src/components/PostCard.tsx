@@ -2,6 +2,7 @@ import { Timestamp } from 'firebase/firestore';
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, FlatList } from 'react-native';
 import { Post } from '../types/types';
+import { Avatar } from 'react-native-paper';
 
 interface PostCardProps {
   post: Post;
@@ -30,7 +31,8 @@ const PostCard: React.FC<PostCardProps> = ({ post, onLike, onComment, currentUse
 
   return (
     <View style={styles.card}>
-      <Image source={{ uri: post.avatar }} style={styles.avatar} />
+      {/* <Image source={{ uri: post.avatar }} style={styles.avatar} /> */}
+      <Avatar.Text style={styles.avatar} size={45} label={post.name ? post.name.charAt(0).toUpperCase() : ""} />
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.name}>{post.name}</Text>

@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
-import { IReview } from '../src/types/types';
 import Tag from './Tag';
+import { Avatar } from 'react-native-paper';
+import { IReview } from '../types/types';
 
 type ReviewProps = {
     review: IReview
@@ -28,7 +29,8 @@ const Review: React.FC<ReviewProps> = ({ review }) => {
     return (
         <View style={styles.reviewContainer}>
             <View style={styles.header}>
-                <Image source={{ uri: review.avatar }} style={styles.avatar} />
+                {/* <Image source={{ uri: review.avatar }} style={styles.avatar} /> */}
+                <Avatar.Text style={styles.avatar} size={40} label={review.name && review.name.charAt(0).toUpperCase()} />
                 <Text style={styles.reviewUser}>{review.name}</Text>
                 <Text style={styles.reviewDate}>{review.timestamp.toDate().toLocaleDateString()}</Text>
             </View>

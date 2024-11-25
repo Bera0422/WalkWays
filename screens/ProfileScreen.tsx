@@ -5,6 +5,8 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { fetchUserProfile, fetchUserWalkHistory } from '../src/services/firestoreService';
 import { Switch } from 'react-native-gesture-handler';
+import { Avatar } from 'react-native-paper';
+import { convertDistance } from 'geolib';
 
 const UserProfile = () => {
     const { user, loading: authLoading } = useAuth(); // Access user from context
@@ -65,14 +67,15 @@ const UserProfile = () => {
             {/* Header Section */}
             <View style={styles.header}>
                 <View style={styles.photoContainer}>
-                    <Image source={{ uri: profileData.profilePhoto }} style={styles.profilePhoto} />
-                    <TouchableOpacity style={styles.editIcon}>
+                    <Avatar.Text style={styles.avatar} size={95} label={profileData.name.charAt(0).toUpperCase()} />
+                    {/* <TouchableOpacity style={styles.editIcon}>
                         <Text style={styles.editText}>Edit</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                 </View>
                 <Text style={styles.name}>{profileData.name}</Text>
                 <Text style={styles.email}>{profileData.email}</Text>
                 <Text style={styles.createdAt}>Joined: {new Date(profileData.createdAt?.seconds * 1000).toLocaleDateString()}</Text>
+
             </View>
 
             {/* Walk History Section */}
@@ -82,7 +85,7 @@ const UserProfile = () => {
                     <View key={index} style={styles.walkHistoryItem}>
                         <Text style={styles.walkHistoryText}>{walk.routeName}</Text>
                         <Text style={styles.walkDetails}>
-                            {walk.distanceWalked} miles - {walk.timeTaken} mins
+                            {convertDistance(walk.distanceWalked, 'mi').toFixed(1)} miles - {`${Math.floor(walk.timeTaken / 60).toString()}`} mins
                         </Text>
                         <Text style={styles.walkDate}>Completed: {new Date(walk.timestamp.seconds * 1000).toLocaleDateString()}</Text>
                     </View>
@@ -121,6 +124,7 @@ const styles = StyleSheet.create({
     header: { alignItems: 'center', marginBottom: 20 },
     photoContainer: { position: 'relative' },
     profilePhoto: { width: 100, height: 100, borderRadius: 50 },
+    avatar: { backgroundColor: '#6200ea' },
     editIcon: {
         position: 'absolute',
         bottom: 0,
