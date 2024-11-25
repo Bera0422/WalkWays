@@ -20,6 +20,7 @@ import TrackingMap from '../src/components/TrackingMap';
 import Timer from '../src/components/Timer';
 import { saveCompletedRoute, updateUsersCompletedRoutes } from '../src/services/firestoreService';
 import { TrackingScreenNavigationProp, TrackingScreenRouteProp } from '../src/types/props';
+import RecordWalk from '../src/components/RecordWalk';
 
 const avatars = [
   { avatarId: '1', uri: require('../src/assets/avatars/1.jpg') },
@@ -48,6 +49,7 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [stepCount, setStepCount] = useState(0);
   const [isTracking, setIsTracking] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const [savedRouteId, setSavedRouteId] = useState(-1);
   const [distanceWalked, setDistanceWalked] = useState(0);
 
@@ -66,7 +68,7 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
 
-    if (isTracking) {
+    if (isTracking || isRecording) {
       interval = setInterval(() => setElapsedTime((prev) => prev + 1), 1000);
     } else if (interval) {
       clearInterval(interval);
@@ -75,7 +77,7 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isTracking]);
+  }, [isTracking, isRecording]);
 
   const loadTimer = async () => {
     const savedStartTime = await AsyncStorage.getItem('startTime');
@@ -167,10 +169,21 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
     setDistanceWalked((prevDistance) => prevDistance + distance);
   };
 
-  if (!isTracking) {
+  const handleStartWalk = () => setIsRecording(true);
+  const handleEndRecording = (route: { latitude: number, longitude: number }[]) => {
+    setIsRecording(false);
+    console.log("Recording ended!");
+    console.log("Recorded route: ", route);
+  };
+
+  if (!isTracking && !isRecording) {
     return (
       <View style={styles.noWalkContainer}>
         <Text style={styles.noWalkText}>No ongoing walk</Text>
+        {!isRecording &&
+          <TouchableOpacity style={styles.startWalkButton} onPress={handleStartWalk}>
+            <Text style={styles.startWalkButtonText}>Start Recording Walk</Text>
+          </TouchableOpacity>}
       </View>
     );
   }
@@ -212,12 +225,14 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
         </View>
 
         <View style={styles.mapContainer}>
-          <TrackingMap updateDistanceWalked={updateDistanceWalked} waypoints={routeDetails.details.waypoints}/>
+          {isTracking ?
+            <TrackingMap updateDistanceWalked={updateDistanceWalked} waypoints={routeDetails.details.waypoints} />
+            : <RecordWalk updateDistanceWalked={updateDistanceWalked} onEndWalk={handleEndRecording} />}
         </View>
       </ScrollView>
-      <TouchableOpacity style={styles.endWalkButton} onPress={handleEndWalk}>
+      {isTracking && <TouchableOpacity style={styles.endWalkButton} onPress={handleEndWalk}>
         <Text style={styles.endWalkButtonText}>End Walk</Text>
-      </TouchableOpacity>
+      </TouchableOpacity>}
     </SafeAreaView>
   );
 };

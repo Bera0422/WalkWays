@@ -121,6 +121,7 @@ const TrackingMap: React.FC<TrackingMapProp> = ({ updateDistanceWalked, waypoint
                     if (visitedWaypoints.length > 0) {
                         const lastWaypoint = visitedWaypoints[visitedWaypoints.length - 1].coords;
                         const distance = getDistance(lastWaypoint, point);
+                        console.log(distance);
                         updateDistanceWalked(distance);
                     }
                 }
