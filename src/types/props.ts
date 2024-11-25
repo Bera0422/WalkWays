@@ -1,5 +1,6 @@
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp } from "@react-navigation/native";
+import { Route } from "./types";
 
 export type RootStackParamList = {
   HomeStack: {
@@ -21,10 +22,11 @@ export type RootStackParamList = {
     params: any
   };
   Tracking: {
-    routeId: string
+    routeDetails: Route;
   };
   Feedback: {
     routeId: string;
+    routeName: string;
   };
   CommunityStack: {
     screen: string;

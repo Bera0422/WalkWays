@@ -1,55 +1,86 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import MapView from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
 import { getDistance } from 'geolib'; // Import geolib for distance calculation
+import RenderHTML from 'react-native-render-html';
+
+const MAX_WAYPOINTS = 25;
+const proximityThreshold = 20; // Meters
 
 interface TrackingMapProp {
     updateDistanceWalked: (distance: number) => void;
+    waypoints: { latitude: number; longitude: number }[]
 }
 
-const TrackingMap: React.FC<TrackingMapProp> = ({ updateDistanceWalked }) => {
+const TrackingMap: React.FC<TrackingMapProp> = ({ updateDistanceWalked, waypoints }) => {
     const apiKey = process.env.GOOGLE_MAPS_API_KEY || "";
 
+    const [errMsg, setErrorMsg] = useState('');
     const [location, setLocation] = useState<Location.LocationObject | null>(null);
-    const [errorMsg, setErrorMsg] = useState('');
     const [visitedWaypoints, setVisitedWaypoints] = useState<
         { index: number; coords: { latitude: number; longitude: number } }[]
     >([]);
-    const [currentWaypointIndex, setCurrentWaypointIndex] = useState(0);
+    const [currentInstruction, setCurrentInstruction] = useState<string>('');
+    const [instructions, setInstructions] = useState<
+        { step: string; location: { latitude: number; longitude: number } }[]
+    >([]);
+    const [instructionWaypoints, setInstructionWaypoints] = useState<
+        { latitude: number; longitude: number }[]
+    >([]);
 
-    const startCoords = { latitude: 48.8566, longitude: 2.3522 };
-    const endCoords = { latitude: 48.8716, longitude: 2.3011 };
+    const startCoords = waypoints[0];
+    const endCoords = waypoints[1];
+    
+    // const startCoords = { latitude: 48.8566, longitude: 2.3522 };
+    // const endCoords = { latitude: 48.8716, longitude: 2.3011 };
 
-    const waypoints = [
-        { latitude: 48.8566, longitude: 2.3522 },
-        { latitude: 48.8589, longitude: 2.3397 },
-        { latitude: 48.8623, longitude: 2.3303 },
-        { latitude: 48.8655, longitude: 2.3202 },
-        { latitude: 48.8686, longitude: 2.3105 },
-        { latitude: 48.8716, longitude: 2.3011 },
-    ];
+    // const startCoords = { latitude: 47.7616868, longitude: -122.2080222 };
+    // const endCoords = { latitude: 47.7633868, longitude: -122.2087400 };
 
-    const proximityThreshold = 10; // Meters
+    // const routeWaypoints = [
+    //     { latitude: 48.8566, longitude: 2.3522 },
+    //     { latitude: 48.8589, longitude: 2.3397 },
+    //     { latitude: 48.8623, longitude: 2.3303 },
+    //     { latitude: 48.8655, longitude: 2.3202 },
+    //     { latitude: 48.8686, longitude: 2.3105 },
+    //     { latitude: 48.8716, longitude: 2.3011 },
+    // ];
+
+    // const routeWaypoints = [
+    //     { latitude: 47.7616868, longitude: -122.2080222 },
+    //     { latitude: 47.7615385, longitude: -122.2093291 },
+    //     { latitude: 47.7633868, longitude: -122.2087400 },
+    //     { latitude: 47.7616758, longitude: -122.2077624 },
+    // ];
+
 
     // Mocked movement simulation
     useEffect(() => {
+        let currentIndex = 0;
+        setLocation({
+            coords: waypoints[0],
+            timestamp: Date.now(),
+            mocked: true,
+        } as Location.LocationObject);
+
         const simulateMovement = () => {
-            if (currentWaypointIndex < waypoints.length) {
-                const nextCoords = waypoints[currentWaypointIndex];
+            if (currentIndex < instructionWaypoints.length) {
+                const nextCoords = instructionWaypoints[currentIndex];
                 setLocation({
                     coords: nextCoords,
                     timestamp: Date.now(),
                     mocked: true,
                 } as Location.LocationObject);
-                setCurrentWaypointIndex((prevIndex) => prevIndex + 1);
+
+                currentIndex += 1;
             }
         };
 
         const intervalId = setInterval(simulateMovement, 2000); // Move to the next waypoint every 2 seconds
         return () => clearInterval(intervalId); // Cleanup on unmount
-    }, [currentWaypointIndex]);
+    }, [instructionWaypoints]);
 
     // Real movement
     // useEffect(() => {
@@ -61,10 +92,9 @@ const TrackingMap: React.FC<TrackingMapProp> = ({ updateDistanceWalked }) => {
     //         }
 
     //         Location.watchPositionAsync(
-    //             { accuracy: Location.Accuracy.High, distanceInterval: 1 },
+    //             { accuracy: Location.Accuracy.High, distanceInterval: 8 },
     //             (loc) => {
     //                 setLocation(loc);
-    //                 updateVisitedWaypoints(loc);
     //             }
     //         );
     //     })();
@@ -76,7 +106,7 @@ const TrackingMap: React.FC<TrackingMapProp> = ({ updateDistanceWalked }) => {
             const { latitude, longitude } = location.coords;
 
             // Find nearest unvisited waypoint
-            waypoints.forEach((point, index) => {
+            instructionWaypoints.forEach((point, index) => {
                 if (
                     !visitedWaypoints.some((wp) => wp.index === index) &&
                     getDistance(point, { latitude, longitude }) < proximityThreshold
@@ -95,49 +125,101 @@ const TrackingMap: React.FC<TrackingMapProp> = ({ updateDistanceWalked }) => {
                     }
                 }
             });
+
+            // Update current instruction
+            const matchingStep = instructions.find((inst) =>
+                getDistance(inst.location, { latitude, longitude }) < proximityThreshold
+            );
+            if (matchingStep) {
+                setCurrentInstruction(matchingStep.step);
+            }
+
         }
     }, [location]);
+
+    // Handle route directions and instructions
+    const handleDirections = (result: any) => {
+        if (result && result.legs) {
+            const steps = result.legs.flatMap((leg: any) =>
+                leg.steps.map((step: any) => ({
+                    step: step.html_instructions,
+                    // .replace(/<[^>]*>?/gm, ''), // Remove HTML tags
+                    location: {
+                        latitude: step.start_location.lat,
+                        longitude: step.start_location.lng,
+                    },
+                }))
+            );
+            console.log(steps);
+            setInstructions(steps);
+            setInstructionWaypoints(steps.map((inst: any) => inst.location));
+
+            if (steps.length > 0) {
+                setCurrentInstruction(steps[0].step); // Set the first instruction initially
+            }
+        }
+    };
+
+    const getWaypointBatches = (waypoints: any) => {
+        const batches = [];
+        for (let i = 0; i < waypoints.length; i += MAX_WAYPOINTS) {
+            batches.push(waypoints.slice(i, i + MAX_WAYPOINTS));
+        }
+        return batches;
+    }
+
+    const { width } = useWindowDimensions()
 
     return (
         <View style={styles.container}>
             {location ? (
-                <MapView
-                    provider="google"
-                    style={styles.map}
-                    initialRegion={{
-                        latitude: location.coords.latitude,
-                        longitude: location.coords.longitude,
-                        latitudeDelta: 0.01,
-                        longitudeDelta: 0.01,
-                    }}
-                    showsUserLocation={true}
-                >
-                    {/* Route directions */}
-                    <MapViewDirections
-                        origin={startCoords}
-                        destination={endCoords}
-                        waypoints={waypoints}
-                        mode="WALKING"
-                        apikey={apiKey}
-                        strokeWidth={4}
-                        strokeColor="blue"
-                    />
-
-                    {/* Highlight visited waypoints */}
-                    {visitedWaypoints.length > 1 && (
+                <>
+                    <MapView
+                        provider="google"
+                        style={styles.map}
+                        initialRegion={{
+                            latitude: location.coords.latitude,
+                            longitude: location.coords.longitude,
+                            latitudeDelta: 0.01,
+                            longitudeDelta: 0.01,
+                        }}
+                        showsUserLocation={true}
+                    >
+                        {/* Route directions */}
                         <MapViewDirections
-                            origin={visitedWaypoints[0].coords}
-                            destination={visitedWaypoints[visitedWaypoints.length - 1].coords}
-                            waypoints={visitedWaypoints.map((wp) => wp.coords)}
+                            origin={startCoords}
+                            destination={endCoords}
+                            waypoints={waypoints}
                             mode="WALKING"
                             apikey={apiKey}
                             strokeWidth={4}
-                            strokeColor="green" // Visited portion color
+                            strokeColor="blue"
+                            onReady={handleDirections}
                         />
-                    )}
-                </MapView>
+                        {/* Highlight visited waypoints */}
+                        {visitedWaypoints.length > 1 &&
+                            getWaypointBatches(visitedWaypoints).map((batch, index) => (
+                                <MapViewDirections
+                                    key={index} // Ensure unique keys for each batch
+                                    origin={batch[0].coords}
+                                    destination={batch[batch.length - 1].coords}
+                                    waypoints={batch.slice(1, batch.length - 1).map((wp: any) => wp.coords)}
+                                    mode="WALKING"
+                                    apikey={apiKey}
+                                    strokeWidth={4}
+                                    strokeColor="green" // Visited portion color
+                                />
+                            ))}
+                    </MapView>
+                    <View style={styles.instructionContainer}>
+                        <RenderHTML
+                            contentWidth={width}
+                            source={{ html: currentInstruction || 'Loading directions...' }}
+                        />
+                    </View>
+                </>
             ) : (
-                <Text>{errorMsg || 'Loading map...'}</Text>
+                <Text>{errMsg || 'Loading map...'}</Text>
             )}
         </View>
     );
@@ -146,6 +228,19 @@ const TrackingMap: React.FC<TrackingMapProp> = ({ updateDistanceWalked }) => {
 const styles = StyleSheet.create({
     container: { flex: 1 },
     map: { flex: 1 },
+    instructionContainer: {
+        position: 'absolute',
+        bottom: 20,
+        backgroundColor: 'rgba(235, 218, 244, 0.9)',
+        padding: 18,
+        borderRadius: 8,
+        marginHorizontal: 20,
+        alignSelf: 'center'
+    },
+    instructionText: {
+        fontSize: 16,
+        textAlign: 'center',
+    },
 });
 
 export default TrackingMap;

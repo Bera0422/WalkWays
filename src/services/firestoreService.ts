@@ -3,7 +3,9 @@ import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 import 'react-native-get-random-values';
 import { db, storage } from '../../firebaseConfig';
-import { IReview, Route } from '../types/types';
+import { IReview, Post, Route } from '../types/types';
+
+const DEFAULT_USER_ID = "mbD9wmGK0fqGH62vxrxV";
 
 export const fetchRoutes = async () => {
     const routesCollection = collection(db, 'routes');
@@ -111,7 +113,7 @@ export const fetchTags = async () => {
     return tags;
 };
 
-export const saveReview = async (reviewData: any, userId: string = "mbD9wmGK0fqGH62vxrxV") => {
+export const saveReview = async (reviewData: any, userId: string = DEFAULT_USER_ID) => {
     const routeRef = doc(db, 'routes', reviewData.routeId);
     const review = {
         ...reviewData,
@@ -137,13 +139,16 @@ export const saveReview = async (reviewData: any, userId: string = "mbD9wmGK0fqG
     }
 }
 
-export const saveCommunityPost = async (data: any, userId: string = "mbD9wmGK0fqGH62vxrxV") => {
+export const saveCommunityPost = async (data: any, userId: string = DEFAULT_USER_ID) => {
     const post = {
         userId: doc(db, 'users', userId),
+        routeName: data.routeName,
         tags: data.tags.map((tagId: string) => doc(db, 'tags', tagId)),
         images: [data.media],
         text: data.text,
-        timestamp: data.timestamp
+        timestamp: data.timestamp,
+        likes: {},
+        comments: [],
     }
     try {
         const docRef = await addDoc(collection(db, 'communityPosts'), post);
@@ -175,16 +180,16 @@ export const fetchCommunityPosts = async () => {
             const avatarUrl = userData.profilePhoto ? await getDownloadURL(ref(storage, userData.profilePhoto)) : '';
             return {
                 id: postDoc.id,
-                ...posts,
-                tags,
-                name: userData.name,
                 avatar: avatarUrl,
-                postImage: imageUrl,
+                name: userData.name,
                 date: postData.timestamp.toDate().toLocaleDateString(),
-            };
+                tags: tags,
+                postImage: imageUrl,
+                ...posts,
+            } as Post;
         }
 
-        return {};
+        return {} as Post;
     }));
 
     return posts;
@@ -233,14 +238,14 @@ export const saveCompletedRoute = async (routeData: any) => {
     }
 }
 
-export const updateUsersCompletedRoutes = async (routeId: string, userId: string = "mbD9wmGK0fqGH62vxrxV") => {
+export const updateUsersCompletedRoutes = async (routeId: string, userId: string = DEFAULT_USER_ID) => {
     try {
         const routeRef = doc(db, 'completedRoutes', routeId)
 
         const userRef = doc(db, 'users', userId);
         const userSnap = await getDoc(userRef);
         if (userSnap.exists()) {
-            await updateDoc(userRef, { completedRoutes: arrayUnion(routeRef)});
+            await updateDoc(userRef, { completedRoutes: arrayUnion(routeRef) });
             console.log("User updated with route ID:", routeRef.id);
             return userRef.id
         }
@@ -297,8 +302,49 @@ export const fetchUserWalkHistory = async (userId: string) => {
         const completedRouteDocs = await Promise.all(completedRoutesPromises);
         const completedRoutes = completedRouteDocs.map(completedRouteDoc => { return { id: completedRouteDoc.id, ...completedRouteDoc.data() } });
 
-       return completedRoutes;
+        return completedRoutes;
     }
 
     return [];
+};
+
+export const toggleLikePost = async (postId: string, userId: string = DEFAULT_USER_ID, isLiked: boolean) => {
+    const postRef = doc(db, 'communityPosts', postId);
+    try {
+        await updateDoc(postRef, {
+            [`likes.${userId}`]: isLiked ? null : true
+        });
+        const updatedRef = await getDoc(postRef);
+        if (updatedRef.exists()) {
+            return {
+                id: updatedRef.id,
+                ...updatedRef.data()
+            } as Post;
+        }
+    } catch (error) {
+        console.error("Error liking post: ", error);
+    }
+};
+
+export const addCommentToPost = async (postId: string, comment: string, name: string = "John Doe", userId: string = DEFAULT_USER_ID) => {
+    const postRef = doc(db, 'communityPosts', postId);
+    try {
+        await updateDoc(postRef, {
+            comments: arrayUnion({
+                name: name || "John Doe",
+                userId,
+                comment,
+                timestamp: new Date()
+            })
+        });
+        const updatedRef = await getDoc(postRef);
+        if (updatedRef.exists()) {
+            return {
+                id: updatedRef.id,
+                ...updatedRef.data()
+            } as Post
+        }
+    } catch (error) {
+        console.error("Error adding comment: ", error);
+    }
 };

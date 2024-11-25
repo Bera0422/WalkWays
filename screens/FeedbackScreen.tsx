@@ -34,6 +34,7 @@ interface Props {
 const FeedbackScreen: React.FC<Props> = ({ route, navigation }) => {
     const { user } = useAuth();
     const routeId = route.params.routeId;
+    const routeName = route.params.routeName;
 
     const [rating, setRating] = useState(4);
     const [shareWithCommunity, setShareWithCommunity] = useState(false);
@@ -133,7 +134,7 @@ const FeedbackScreen: React.FC<Props> = ({ route, navigation }) => {
         try {
             await saveReview(feedbackData);
             if (shareWithCommunity) {
-                await saveCommunityPost({ ...feedbackData, timestamp: new Date() });
+                await saveCommunityPost({ routeName: routeName, ...feedbackData, timestamp: new Date() });
             }
             await AsyncStorage.removeItem('unsavedFeedback');
             navigation.reset({ index: 0, routes: [{ name: 'CommunityStack', params: { screen: 'Community' } }] });

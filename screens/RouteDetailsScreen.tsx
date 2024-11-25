@@ -113,7 +113,7 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
               ))}
             </View>
             <Text style={styles.rating}>
-              {routeDetails.rating} <FontAwesome name="star" size={18} color="#FFD700" />
+              {routeDetails.rating.toFixed(1)} <FontAwesome name="star" size={18} color="#FFD700" />
             </Text>
           </View>
 
@@ -153,17 +153,19 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
         </View>
 
         {/* Community Feedback */}
-        {routeReviews.length > 0 && (
-          <View style={styles.feedbackContainer}>
-            <Text style={styles.feedbackTitle}>Community Feedback</Text>
+
+        <View style={styles.feedbackContainer}>
+          <Text style={styles.feedbackTitle}>Community Feedback</Text>
+          {routeReviews.length > 0 ? (
             <FlatList
               data={routeReviews}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => <Review review={item} />}
               scrollEnabled={false}
-            />
-          </View>
-        )}
+            />) : <Text style={styles.feedbackTitle}>No reviews</Text>
+          }
+
+        </View>
       </ScrollView>
 
       {/* Start Walk Button */}
@@ -172,7 +174,7 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
         onPress={() =>
           navigation.reset({
             index: 0,
-            routes: [{ name: 'TrackingStack', params: { screen: 'Tracking', params: { routeId } } }],
+            routes: [{ name: 'TrackingStack', params: { screen: 'Tracking', params: { routeDetails } } }],
           })
         }
       >

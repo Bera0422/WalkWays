@@ -39,7 +39,9 @@ interface Props {
 }
 
 const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
-  const routeId = route.params?.routeId;
+  const routeDetails = route.params?.routeDetails;
+  const routeId = routeDetails?.id;
+  const routeName = routeDetails?.name;
   const { user } = useAuth();
 
   const [startTime, setStartTime] = useState<number | null>(null);
@@ -55,7 +57,7 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
       const distanceFromSteps = result.steps * stepLength;
       setStepCount(result.steps);
       setDistanceWalked((prevDistance) =>
-        Math.max(prevDistance, convertDistance(distanceFromSteps, 'km'))
+        Math.max(prevDistance, convertDistance(distanceFromSteps, 'mi'))
       );
     });
     return () => subscription.remove();
@@ -132,8 +134,9 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
 
   const handleEndWalk = async () => {
     const routeData = {
-      routeId,
-      distanceWalked,
+      routeId: routeId,
+      routeName: routeDetails.name,
+      distanceWalked: distanceWalked,
       stepsWalked: stepCount,
       timeTaken: elapsedTime,
       timestamp: Timestamp.now(),
@@ -148,7 +151,7 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
 
     setIsTracking(false);
     await AsyncStorage.removeItem('trackingData');
-    navigation.navigate('Feedback', { routeId });
+    navigation.navigate('Feedback', { routeId, routeName });
   };
 
 
@@ -209,7 +212,7 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
         </View>
 
         <View style={styles.mapContainer}>
-          <TrackingMap updateDistanceWalked={updateDistanceWalked} />
+          <TrackingMap updateDistanceWalked={updateDistanceWalked} waypoints={routeDetails.details.waypoints}/>
         </View>
       </ScrollView>
       <TouchableOpacity style={styles.endWalkButton} onPress={handleEndWalk}>
