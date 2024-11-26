@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, getDoc, query, where, addDoc, updateDoc, setDoc, arrayUnion } from 'firebase/firestore';
+import { collection, doc, getDocs, getDoc, query, where, addDoc, updateDoc, setDoc, arrayUnion, orderBy } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 import 'react-native-get-random-values';
@@ -163,7 +163,8 @@ export const saveCommunityPost = async (data: any) => {
 
 export const fetchCommunityPosts = async () => {
     const postsRef = collection(db, 'communityPosts');
-    const postsSnapshot = await getDocs(postsRef);
+    const q = query(postsRef, orderBy('timestamp', 'desc'));
+    const postsSnapshot = await getDocs(q);
 
     const posts = await Promise.all(postsSnapshot.docs.map(async (postDoc) => {
         const postData = postDoc.data();
