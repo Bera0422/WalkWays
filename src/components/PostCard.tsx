@@ -12,11 +12,12 @@ interface PostCardProps {
 }
 
 const PostCard: React.FC<PostCardProps> = ({ post, onLike, onComment, currentUserId }) => {
+  console.log(post.likes);
   const [newComment, setNewComment] = useState('');
   const postImage = post.images?.[0];
   // const postImage = post.postImage;
   const likeCount = Object.values(post.likes || {}).filter(value => value === true).length;
-  const isLiked = post.likes[currentUserId] || false;
+  const isLiked = post.likes && post.likes[currentUserId] || false;
 
   const handleLike = () => {
     onLike(post.id, isLiked);
@@ -66,7 +67,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onLike, onComment, currentUse
           style={styles.commentsList}
         />
 
-        <View style={styles.addCommentSection}>
+        {currentUserId && <View style={styles.addCommentSection}>
           <TextInput
             style={styles.commentInput}
             placeholder="Add a comment..."
@@ -77,7 +78,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onLike, onComment, currentUse
           <TouchableOpacity onPress={handleAddComment} style={styles.addCommentButton}>
             <Text style={styles.addCommentButtonText}>Post</Text>
           </TouchableOpacity>
-        </View>
+        </View>}
       </View>
     </View>
   );

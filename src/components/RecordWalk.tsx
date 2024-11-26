@@ -7,7 +7,7 @@ import { getDistance } from 'geolib'; // Import geolib for distance calculation
 import RenderHTML from 'react-native-render-html';
 
 const MAX_WAYPOINTS = 25;
-const UPDATE_THRESHOLD = 1; // Meters
+const UPDATE_THRESHOLD = 15; // Meters
 
 interface RecordWalkProp {
     onEndWalk: (
@@ -209,4 +209,210 @@ const styles = StyleSheet.create({
 });
 
 export default RecordWalk;
+
+// import React, { useEffect, useState } from 'react';
+// import { View, Text, StyleSheet, TouchableOpacity, useWindowDimensions } from 'react-native';
+// import MapView from 'react-native-maps';
+// import MapViewDirections from 'react-native-maps-directions';
+// import * as Location from 'expo-location';
+// import { getDistance } from 'geolib';
+
+// const MAX_WAYPOINTS = 25;
+// const UPDATE_THRESHOLD = 1; // Meters
+// const BATCH_SIZE = 5; // Number of waypoints in a batch
+
+// interface RecordWalkProp {
+//     onEndWalk: (route: { latitude: number; longitude: number }[]) => void;
+//     updateDistanceWalked: (distance: number) => void;
+// }
+
+// const RecordWalk: React.FC<RecordWalkProp> = ({ onEndWalk, updateDistanceWalked }) => {
+//     const apiKey = process.env.GOOGLE_MAPS_API_KEY || "";
+
+//     const [errMsg, setErrorMsg] = useState('');
+//     const [location, setLocation] = useState<Location.LocationObject | null>(null);
+//     const [visitedWaypoints, setVisitedWaypoints] = useState<
+//         { index: number; coords: { latitude: number; longitude: number } }[]
+//     >([]);
+//     const [batch, setBatch] = useState<
+//         { index: number; coords: { latitude: number; longitude: number } }[]
+//     >([]);
+
+
+//     // Mocked movement simulation
+//     useEffect(() => {
+//         const mockCoords = [
+//             { latitude: 48.8566, longitude: 2.3522 },
+//             { latitude: 48.8589, longitude: 2.3397 },
+//             { latitude: 48.8623, longitude: 2.3303 },
+//             { latitude: 48.8655, longitude: 2.3202 },
+//             { latitude: 48.8686, longitude: 2.3105 },
+//             { latitude: 48.8716, longitude: 2.3011 },
+//         ];
+
+//         let currentIndex = 0;
+//         setLocation({
+//             coords: mockCoords[0],
+//             timestamp: Date.now(),
+//             mocked: true,
+//         } as Location.LocationObject);
+
+//         const simulateMovement = () => {
+//             if (currentIndex < mockCoords.length) {
+//                 const nextCoords = mockCoords[currentIndex];
+//                 setLocation({
+//                     coords: nextCoords,
+//                     timestamp: Date.now(),
+//                     mocked: true,
+//                 } as Location.LocationObject);
+
+//                 currentIndex += 1;
+//             }
+//         };
+
+//         const intervalId = setInterval(simulateMovement, 2000); // Move to the next waypoint every 2 seconds
+//         return () => clearInterval(intervalId); // Cleanup on unmount
+//     }, []);
+
+//     // useEffect(() => {
+//     //     (async () => {
+//     //         let { status } = await Location.requestForegroundPermissionsAsync();
+//     //         if (status !== 'granted') {
+//     //             setErrorMsg('Permission to access location was denied');
+//     //             return;
+//     //         }
+
+//     //         Location.watchPositionAsync(
+//     //             { accuracy: Location.Accuracy.High, distanceInterval: 8 },
+//     //             (loc) => {
+//     //                 setLocation(loc);
+//     //             }
+//     //         );
+//     //     })();
+//     // }, []);
+
+//     useEffect(() => {
+//         if (!location) return;
+
+//         const { latitude, longitude } = location.coords;
+
+//         if (visitedWaypoints.length === 0) {
+//             setVisitedWaypoints([{ index: 0, coords: { latitude, longitude } }]);
+//             return;
+//         }
+
+//         const lastPoint = visitedWaypoints[visitedWaypoints.length - 1]?.coords;
+//         if (!lastPoint) return;
+
+//         const distance = getDistance(lastPoint, { latitude, longitude });
+
+//         if (distance > UPDATE_THRESHOLD) {
+//             updateDistanceWalked(distance);
+
+//             const newPoint = { index: visitedWaypoints.length, coords: { latitude, longitude } };
+//             setBatch((prevBatch) => {
+//                 const updatedBatch = [...prevBatch, newPoint];
+
+//                 if (updatedBatch.length >= BATCH_SIZE) {
+//                     // Calculate the average latitude and longitude
+//                     const avgLatitude =
+//                         updatedBatch.reduce((sum, point) => sum + point.coords.latitude, 0) /
+//                         updatedBatch.length;
+//                     const avgLongitude =
+//                         updatedBatch.reduce((sum, point) => sum + point.coords.longitude, 0) /
+//                         updatedBatch.length;
+
+//                     const averagePoint = {
+//                         index: visitedWaypoints.length,
+//                         coords: { latitude: avgLatitude, longitude: avgLongitude },
+//                     };
+
+//                     // Add the averaged point to visitedWaypoints
+//                     setVisitedWaypoints((prev) => [...prev, averagePoint]);
+//                     return []; // Reset the batch
+//                 }
+
+//                 return updatedBatch;
+//             });
+//         }
+//     }, [location, visitedWaypoints]);
+
+
+//     const handleEndWalk = () => {
+//         if (batch.length > 0) {
+//             const midpointIndex = Math.floor(batch.length / 2);
+//             const midpoint = batch[midpointIndex];
+//             setVisitedWaypoints((prev) => [...prev, midpoint]);
+//         }
+//         onEndWalk(visitedWaypoints.map((point) => point.coords));
+//     };
+
+//     const getWaypointBatches = (waypoints: any) => {
+//         const batches = [];
+//         for (let i = 0; i < waypoints.length; i += MAX_WAYPOINTS) {
+//             batches.push(waypoints.slice(i, i + MAX_WAYPOINTS));
+//         }
+//         return batches;
+//     };
+
+//     const { width } = useWindowDimensions();
+
+//     return (
+//         <View style={styles.container}>
+//             {location ? (
+//                 <>
+//                     <MapView
+//                         provider="google"
+//                         style={styles.map}
+//                         initialRegion={{
+//                             latitude: location.coords.latitude,
+//                             longitude: location.coords.longitude,
+//                             latitudeDelta: 0.01,
+//                             longitudeDelta: 0.01,
+//                         }}
+//                         showsUserLocation={true}
+//                     >
+//                         {visitedWaypoints.length > 1 &&
+//                             getWaypointBatches(visitedWaypoints).map((batch, index) => (
+//                                 <MapViewDirections
+//                                     key={index}
+//                                     origin={batch[0].coords}
+//                                     destination={batch[batch.length - 1].coords}
+//                                     waypoints={batch.slice(1, batch.length - 1).map((wp: any) => wp.coords)}
+//                                     mode="WALKING"
+//                                     apikey={apiKey}
+//                                     strokeWidth={4}
+//                                     strokeColor="green"
+//                                 />
+//                             ))}
+//                     </MapView>
+//                     <TouchableOpacity style={styles.endWalkButton} onPress={handleEndWalk}>
+//                         <Text style={styles.endWalkButtonText}>End Recording Walk</Text>
+//                     </TouchableOpacity>
+//                 </>
+//             ) : (
+//                 <Text>{errMsg || 'Loading map...'}</Text>
+//             )}
+//         </View>
+//     );
+// };
+
+// const styles = StyleSheet.create({
+//     container: { flex: 1 },
+//     map: { flex: 1 },
+//     endWalkButton: {
+//         backgroundColor: '#E53935',
+//         paddingVertical: 15,
+//         alignItems: 'center',
+//         margin: 10,
+//         borderRadius: 5,
+//     },
+//     endWalkButtonText: {
+//         color: '#fff',
+//         fontSize: 16,
+//         fontWeight: 'bold',
+//     },
+// });
+
+// export default RecordWalk;
 

@@ -350,3 +350,20 @@ export const addCommentToPost = async (postId: string, comment: string, name: st
         console.error("Error adding comment: ", error);
     }
 };
+
+export const saveRoute = async (routeData: any) => {
+    const route = {
+        ...routeData,
+        tagIDs: routeData.tags.map((tagId: string) => doc(db, 'tags', tagId))
+    }
+
+    try {
+        const docRef = await addDoc(collection(db, 'routes'), route);
+        console.log("Route saved with ID:", docRef.id);
+        return docRef.id;
+    } catch (error) {
+        console.error("error saving route:", error);
+    }
+
+
+}

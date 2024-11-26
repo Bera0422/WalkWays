@@ -28,6 +28,11 @@ export type RootStackParamList = {
     routeId: string;
     routeName: string;
   };
+  SaveRoute: {
+    routeWaypoints: { latitude: number, longitude: number }[];
+    distanceWalked: number;
+    estimatedTime: number;
+  };
   CommunityStack: {
     screen: string;
   }
@@ -50,6 +55,9 @@ export type TrackingScreenNavigationProp = StackNavigationProp<RootStackParamLis
 
 export type FeedbackScreenRouteProp = RouteProp<RootStackParamList, 'Feedback'>;
 export type FeedbackScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Feedback'>;
+
+export type SaveRouteScreenRouteProp = RouteProp<RootStackParamList, 'SaveRoute'>;
+export type SaveRouteScreenNavigationProp = StackNavigationProp<RootStackParamList, 'SaveRoute'>;
 
 export type SignUpScreenRouteProp = RouteProp<RootStackParamList, 'SignUp'>;
 export type SignUpScreenNavigationProp = StackNavigationProp<RootStackParamList, 'SignUp'>;

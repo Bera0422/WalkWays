@@ -12,7 +12,7 @@ interface Props {
 const RouteCard: React.FC<Props> = ({ item, onPress }) => (
   <TouchableOpacity onPress={onPress} style={styles.card}>
     <View style={styles.detailsContainer}>
-      <Image source={{uri: item.image}} style={styles.cardImage} />
+      {item.image && <Image source={{ uri: item.image }} style={styles.cardImage} />}
 
       {/* Rating */}
       <View style={styles.ratingContainer}>
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
   detailTextContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 25, 
+    marginTop: 25,
   },
   detailLabel: {
     color: '#555',

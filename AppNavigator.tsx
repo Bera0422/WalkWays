@@ -13,6 +13,7 @@ import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import { useAuth } from './src/context/AuthContext';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; // or your preferred icon library
+import SaveRouteScreen from './screens/SaveRouteScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -57,7 +58,14 @@ function TrackingStack() {
           headerStyle: { backgroundColor: '#6A2766' },
           headerTintColor: '#fff',
         }} />
-      {/* <Stack.Screen name="Community" component={CommunityScreen} /> */}
+      <Stack.Screen
+        name="SaveRoute"
+        component={SaveRouteScreen}
+        options={{
+          title: 'Save Your Route',
+          headerStyle: { backgroundColor: '#6A2766' },
+          headerTintColor: '#fff',
+        }} />
     </Stack.Navigator>
   );
 }
@@ -125,7 +133,7 @@ export default function Navigation() {
         headerShown: false,
         tabBarActiveTintColor: '#6200ea',
         tabBarInactiveTintColor: '#666',
-        tabBarStyle: { backgroundColor: '#fff'},
+        tabBarStyle: { backgroundColor: '#fff' },
       }}
     >
       <Tab.Screen
