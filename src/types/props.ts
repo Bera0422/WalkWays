@@ -43,6 +43,7 @@ export type RootStackParamList = {
   Profile: undefined;
   SignUp: undefined;
   Login: undefined;
+  PasswordReset: undefined;
 };
 
 export type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
@@ -64,3 +65,7 @@ export type SignUpScreenNavigationProp = StackNavigationProp<RootStackParamList,
 
 export type LoginScreenRouteProp = RouteProp<RootStackParamList, 'Login'>;
 export type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
+
+export type ProfileScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Profile'>;
+
+export type PasswordResetScreenNavigationProp = StackNavigationProp<RootStackParamList, 'PasswordReset'>;

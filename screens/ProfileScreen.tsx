@@ -7,8 +7,13 @@ import { fetchUserProfile, fetchUserWalkHistory } from '../src/services/firestor
 import { Switch } from 'react-native-gesture-handler';
 import { Avatar } from 'react-native-paper';
 import { convertDistance } from 'geolib';
+import { ProfileScreenNavigationProp } from '../src/types/props';
 
-const UserProfile = () => {
+interface Props {
+    navigation: ProfileScreenNavigationProp;
+}
+
+const ProfileScreen: React.FC<Props> = ({ navigation }) => {
     const { user, loading: authLoading } = useAuth(); // Access user from context
     const [profileData, setProfileData] = useState<any>(null);
     const [walkHistory, setWalkHistory] = useState<any[]>([]);
@@ -110,7 +115,7 @@ const UserProfile = () => {
             <View style={styles.section}>
                 {/* <Text style={styles.sectionTitle}>Settings</Text> */}
                 {/* <Button title="Edit Profile" onPress={() => console.log('Edit Profile')} /> */}
-                {/* <Button title="Change Password" onPress={() => console.log('Change Password')} /> */}
+                <Button title="Change Password" onPress={() => navigation.navigate("PasswordReset")} />
                 <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
                     <Text style={styles.logoutButtonText}>Logout</Text>
                 </TouchableOpacity>
@@ -170,4 +175,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default UserProfile;
+export default ProfileScreen;

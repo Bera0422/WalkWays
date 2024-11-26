@@ -14,6 +14,7 @@ import SignUpScreen from './screens/SignUpScreen';
 import { useAuth } from './src/context/AuthContext';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; // or your preferred icon library
 import SaveRouteScreen from './screens/SaveRouteScreen';
+import PasswordResetScreen from './screens/PasswordResetScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -96,6 +97,15 @@ function ProfileStack() {
           headerStyle: { backgroundColor: '#6A2766' },
           headerTintColor: '#fff',
         }} />
+      <Stack.Screen
+        name="PasswordReset"
+        component={PasswordResetScreen}
+        options={{
+          title: 'Password Reset',
+          headerStyle: { backgroundColor: '#6A2766' },
+          headerTintColor: '#fff',
+        }}
+      />
     </Stack.Navigator>
   );
 }
@@ -116,6 +126,15 @@ function AuthStack() {
         component={SignUpScreen}
         options={{
           title: 'Sign Up',
+          headerStyle: { backgroundColor: '#6A2766' },
+          headerTintColor: '#fff',
+        }}
+      />
+      <Stack.Screen
+        name="PasswordReset"
+        component={PasswordResetScreen}
+        options={{
+          title: 'Password Reset',
           headerStyle: { backgroundColor: '#6A2766' },
           headerTintColor: '#fff',
         }}

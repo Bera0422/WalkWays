@@ -15,7 +15,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
         try {
             await logIn(email, password);
             Alert.alert("Logged in successfully!");
-            navigation.navigate("Profile");
+            navigation.navigate("Home");
         } catch (error: any) {
             Alert.alert("Login Failed", error);
         }
@@ -41,6 +41,11 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
             <TouchableOpacity style={styles.loginButton} onPress={handleLogIn}>
                 <Text style={styles.loginButtonText}>Log In</Text>
             </TouchableOpacity>
+
+            <Text onPress={() => navigation.navigate("PasswordReset")} style={styles.switchText}>
+                Forgot Password
+            </Text>
+
             <Text onPress={() => navigation.navigate("SignUp")} style={styles.switchText}>
                 Don't have an account? Sign Up
             </Text>
@@ -53,7 +58,7 @@ const styles = StyleSheet.create({
     container: { flex: 1, justifyContent: 'center', padding: 20 },
     title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
     input: { borderWidth: 1, padding: 10, marginVertical: 10, borderRadius: 5 },
-    switchText: { textAlign: 'center', marginTop: 10, color: 'blue' },
+    switchText: { textAlign: 'center', marginTop: 25, color: 'blue' },
     loginButton: {
         backgroundColor: '#4caf50', // Green background for login
         paddingVertical: 12,
