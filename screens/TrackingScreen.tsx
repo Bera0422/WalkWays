@@ -169,7 +169,14 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
     setDistanceWalked((prevDistance) => prevDistance + distance);
   };
 
-  const handleStartWalk = () => setIsRecording(true);
+  const handleStartRecording = async () => {
+    const now = Date.now();
+    setStartTime(now);
+    setElapsedTime(0);
+    await AsyncStorage.setItem('startTime', now.toString());
+    setIsRecording(true);
+  };
+
   const handleEndRecording = (routeWaypoints: { latitude: number, longitude: number }[]) => {
 
     setIsRecording(false);
@@ -183,7 +190,7 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
       <View style={styles.noWalkContainer}>
         <Text style={styles.noWalkText}>No ongoing walk</Text>
         {!isRecording && user?.uid &&
-          <TouchableOpacity style={styles.startWalkButton} onPress={handleStartWalk}>
+          <TouchableOpacity style={styles.startWalkButton} onPress={handleStartRecording}>
             <Text style={styles.startWalkButtonText}>Start Recording Walk</Text>
           </TouchableOpacity>}
       </View>
