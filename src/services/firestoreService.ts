@@ -9,7 +9,8 @@ const DEFAULT_USER_ID = "mbD9wmGK0fqGH62vxrxV";
 
 export const fetchRoutes = async () => {
     const routesCollection = collection(db, 'routes');
-    const routesSnapshot = await getDocs(routesCollection);
+    const q = query(routesCollection, where('displayOnHome', '==', true));
+    const routesSnapshot = await getDocs(q);
 
     const routes = await Promise.all(routesSnapshot.docs.map(async (routeDoc) => {
         const routeData = routeDoc.data();
