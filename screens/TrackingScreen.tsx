@@ -270,22 +270,32 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#F5F5F5', // Light background color for better contrast
   },
   noWalkText: {
-    fontSize: 18,
-    color: '#555',
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333', // Darker gray for text contrast
+    marginBottom: 20, // Space between text and button
+    textAlign: 'center',
   },
   startWalkButton: {
-    marginTop: 20,
-    backgroundColor: '#4CAF50',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
+    backgroundColor: '#6C63FF', // Vibrant primary color
+    borderRadius: 8, // Smooth corners
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3, // For Android shadow
   },
   startWalkButtonText: {
-    color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    color: '#FFF', // White text for better contrast
+    textAlign: 'center',
   },
   detailContainer: {
     alignItems: 'center',

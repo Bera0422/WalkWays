@@ -4,7 +4,7 @@ import MapView from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
 import { getDistance } from 'geolib'; // Import geolib for distance calculation
-import RenderHTML from 'react-native-render-html';
+import { FontAwesome } from '@expo/vector-icons';
 
 const MAX_WAYPOINTS = 25;
 const UPDATE_THRESHOLD = 15; // Meters
@@ -24,6 +24,14 @@ const RecordWalk: React.FC<RecordWalkProp> = ({ onEndWalk, updateDistanceWalked 
     const [visitedWaypoints, setVisitedWaypoints] = useState<
         { index: number; coords: { latitude: number; longitude: number } }[]
     >([]);
+
+    const [isFollowing, setIsFollowing] = useState(true);
+    const [region, setRegion] = useState({
+        latitude: 0,
+        longitude: 0,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+    });
 
     // const startCoords = { latitude: 48.8566, longitude: 2.3522 };
     // const endCoords = { latitude: 48.8716, longitude: 2.3011 };
@@ -99,6 +107,14 @@ const RecordWalk: React.FC<RecordWalkProp> = ({ onEndWalk, updateDistanceWalked 
 
         const { latitude, longitude } = location.coords;
 
+        if (isFollowing) {
+            setRegion({
+                latitude: latitude,
+                longitude: longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+            });
+        }
         // If no waypoints exist, initialize the path with the first waypoint
         if (visitedWaypoints.length === 0) {
             setVisitedWaypoints([{ index: 0, coords: { latitude, longitude } }]);
@@ -136,12 +152,32 @@ const RecordWalk: React.FC<RecordWalkProp> = ({ onEndWalk, updateDistanceWalked 
         onEndWalk(visitedWaypoints.map((point) => point.coords));
     }
 
+    const handleRegionChange = () => {
+        if (isFollowing) {
+            setIsFollowing(false); // Stop following when user moves the map
+        }
+    };
+
+    const handleRecenter = () => {
+        console.log(region);
+        if (location) {
+            setRegion({
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+            });
+            console.log(region);
+            setIsFollowing(true);
+        }
+    };
+
     return (
         <View style={styles.container}>
             {location ? (
                 <>
                     <MapView
-                        provider="google"
+                        // provider="google"
                         style={styles.map}
                         initialRegion={{
                             latitude: location.coords.latitude,
@@ -150,6 +186,9 @@ const RecordWalk: React.FC<RecordWalkProp> = ({ onEndWalk, updateDistanceWalked 
                             longitudeDelta: 0.01,
                         }}
                         showsUserLocation={true}
+                        region={region}
+                        followsUserLocation={isFollowing}
+                        onRegionChange={handleRegionChange}
                     >
                         {/* Highlight visited waypoints */}
                         {visitedWaypoints.length > 1 &&
@@ -166,6 +205,11 @@ const RecordWalk: React.FC<RecordWalkProp> = ({ onEndWalk, updateDistanceWalked 
                                 />
                             ))}
                     </MapView>
+                    {!isFollowing && (
+                        <TouchableOpacity style={styles.recenterButton} onPress={handleRecenter}>
+                            <FontAwesome name="crosshairs" size={24} color="#fff" />
+                        </TouchableOpacity>
+                    )}
                     <TouchableOpacity style={styles.endWalkButton} onPress={handleEndWalk}>
                         <Text style={styles.endWalkButtonText}>End Recording Walk</Text>
                     </TouchableOpacity>
@@ -206,6 +250,19 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
     },
+    recenterButton: {
+        position: 'absolute',
+        top: 20,
+        right: 20,
+        backgroundColor: '#007AFF',
+        borderRadius: 30,
+        padding: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 3,
+        elevation: 4, // For Android shadow
+      },
 });
 
 export default RecordWalk;

@@ -123,7 +123,7 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 
         {/* Map View */}
         <MapView
-          provider="google"
+          // provider="google"
           style={styles.map}
           initialRegion={{
             latitude: routeDetails.details.location.latitude,
