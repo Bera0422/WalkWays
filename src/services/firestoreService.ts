@@ -9,28 +9,64 @@ const DEFAULT_USER_ID = "mbD9wmGK0fqGH62vxrxV";
 
 export const fetchRoutes = async () => {
     const routesCollection = collection(db, 'routes');
-    const q = query(routesCollection, where('displayOnHome', '==', true));
-    const routesSnapshot = await getDocs(q);
 
-    const routes = await Promise.all(routesSnapshot.docs.map(async (routeDoc) => {
-        const routeData = routeDoc.data();
-        const tagDocIDs = routeData.tagIDs || [];
-        const tagPromises = tagDocIDs.map((tagDoc: any) => getDoc(tagDoc));
-        const tagDocs = await Promise.all(tagPromises);
-        const tags = tagDocs.map(tagDoc => { return { id: tagDoc.id, ...tagDoc.data() } });
-        const imageUrl = routeData.details.images[0] ? await getDownloadURL(ref(storage, routeData.details.images[0])) : '';
-        const { tagIDs, ...route } = routeData;
+    // Query curated routes first
+    const curatedQuery = query(
+        routesCollection,
+        where('displayOnHome', '==', true),
+        where('curated', '==', true),
+        orderBy('timestamp', 'asc')
+    );
+    const curatedSnapshot = await getDocs(curatedQuery);
 
-        return {
-            id: routeDoc.id,
-            ...route,
-            tags,
-            image: imageUrl,
-        } as Route;
-    }));
+    // Query user-generated routes
+    const userGeneratedQuery = query(
+        routesCollection,
+        where('displayOnHome', '==', true),
+        where('curated', '==', false),
+        orderBy('timestamp', 'desc')
+    );
+    const userGeneratedSnapshot = await getDocs(userGeneratedQuery);
 
-    return routes;
+    // Process curated routes
+    const curatedRoutes = await Promise.all(
+        curatedSnapshot.docs.map(async (routeDoc) => processRoute(routeDoc))
+    );
+
+    // Process user-generated routes
+    const userGeneratedRoutes = await Promise.all(
+        userGeneratedSnapshot.docs.map(async (routeDoc) => processRoute(routeDoc))
+    );
+
+    // Combine results: curated first, then user-generated
+    const allRoutes = [...curatedRoutes, ...userGeneratedRoutes];
+
+    return allRoutes;
 };
+
+// Helper function to process a route document
+const processRoute = async (routeDoc: any) => {
+    const routeData = routeDoc.data();
+    const tagDocIDs = routeData.tagIDs || [];
+    const tagPromises = tagDocIDs.map((tagDoc: any) => getDoc(tagDoc));
+    const tagDocs = await Promise.all(tagPromises);
+    const tags = tagDocs.map(tagDoc => ({
+        id: tagDoc.id,
+        ...tagDoc.data()
+    }));
+    const imageUrl = routeData.details?.images?.[0]
+        ? await getDownloadURL(ref(storage, routeData.details.images[0]))
+        : '';
+
+    const { tagIDs, ...route } = routeData;
+    return {
+        id: routeDoc.id,
+        ...route,
+        tags,
+        image: imageUrl,
+    };
+};
+
 
 export const fetchRouteDetails = async (routeId: string) => {
     try {
@@ -269,11 +305,6 @@ export const createUserProfile = async (userId: string, profileData: any) => {
     }
 };
 
-/**
-* Fetch user profile data from Firestore
-* @param userId - User ID
-* @returns User profile data
-*/
 export const fetchUserProfile = async (userId: string) => {
     const userDocRef = doc(db, 'users', userId);
     const userDoc = await getDoc(userDocRef);
@@ -289,18 +320,12 @@ export const fetchUserProfile = async (userId: string) => {
     return null;
 };
 
-/**
- * Fetch user walk history from Firestore
- * @param userId - User ID
- * @returns Array of walk history items
- */
-//TODO: Find an efficient way to fetch the user walk history
-export const fetchUserWalkHistory = async (userId: string, limit: number = -1) => {
+export const fetchUserWalkHistory = async (userId: string, limit: number = 0) => {
     const userDocRef = doc(db, 'users', userId);
     const userDoc = await getDoc(userDocRef);
     if (userDoc.exists()) {
         const userData = userDoc.data();
-        const completedRoutesIds = userData?.completedRoutes.slice(0, limit) || [];
+        const completedRoutesIds = userData?.completedRoutes.slice(-limit).reverse() || [];
         console.log(completedRoutesIds);
         const completedRoutesPromises = completedRoutesIds.map((completedRouteDoc: any) => getDoc(completedRouteDoc));
         const completedRouteDocs = await Promise.all(completedRoutesPromises);
