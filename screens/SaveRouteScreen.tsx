@@ -33,17 +33,19 @@ const SaveRouteScreen: React.FC<Props> = ({ route, navigation }) => {
     const distanceWalked = route.params.distanceWalked;
     const estimatedTime = route.params.estimatedTime;
 
+    const elevationOptions = ['Flat', 'Hilly', 'Mixed'];
+
     const [routeName, setRouteName] = useState('');
     const [description, setDescription] = useState('');
-    const [elevation, setElevation] = useState('');
+    const [elevation, setElevation] = useState(elevationOptions[0]);
     const [rating, setRating] = useState(4);
     const [selectedTags, setSelectedTags] = useState<any[]>([]);
     const [availableTags, setAvailableTags] = useState<any[]>([]);
     const [selectedMedia, setSelectedMedia] = useState<string | null>(null);
     const [shareOnHome, setShareOnHome] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [warningMessage, setWarningMessage] = useState<string | null>(null);
 
-    const elevationOptions = ['Flat', 'Hilly', 'Mixed'];
 
     useEffect(() => {
         const fetchAvailableTags = async () => {
@@ -61,20 +63,28 @@ const SaveRouteScreen: React.FC<Props> = ({ route, navigation }) => {
     const handleMediaSelect = (uri: string) => setSelectedMedia(uri);
 
     const toggleTag = (tagId: string) => {
-        setSelectedTags((tags) =>
-            tags.includes(tagId) ? tags.filter((id) => id !== tagId) : [...tags, tagId]
-        );
+        if (selectedTags.includes(tagId)) {
+            setSelectedTags((tags) => tags.filter((id) => id !== tagId));
+        } else if (selectedTags.length < 3) {
+            setSelectedTags((tags) => [...tags, tagId]);
+        } else {
+            setWarningMessage('You can select up to 3 tags only!');
+            setTimeout(() => setWarningMessage(null), 3000);
+        }
     };
 
     const renderStars = () =>
         Array.from({ length: 5 }, (_, index) => (
+            <TouchableOpacity
+            key={index}
+            onPress={() => setRating(index + 1)}
+        >
             <FontAwesome
-                key={index}
                 name={index < rating ? 'star' : 'star-o'}
                 size={50}
                 color="#FFD700"
-                onPress={() => setRating(index + 1)}
             />
+            </TouchableOpacity>
         ));
 
     const submitRoute = async () => {
@@ -185,6 +195,7 @@ const SaveRouteScreen: React.FC<Props> = ({ route, navigation }) => {
                         </TouchableOpacity>
                     ))}
                 </View>
+                {warningMessage && <Text style={styles.warning}>{warningMessage}</Text>}
 
                 <Text style={styles.title}>Rate Your Route</Text>
                 <View style={styles.starContainer}>{renderStars()}</View>
@@ -209,43 +220,66 @@ const SaveRouteScreen: React.FC<Props> = ({ route, navigation }) => {
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#fff' },
     scrollContent: { padding: 16 },
-    title: { fontSize: 18, fontWeight: 'bold', marginVertical: 16 },
+    title: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginVertical: 12,
+        color: '#6A1B9A',
+    },
     textInput: {
         borderWidth: 1,
         borderColor: '#ccc',
-        borderRadius: 8,
-        padding: 10,
+        borderRadius: 12,
+        padding: 12,
         marginBottom: 16,
+        fontSize: 16,
+        backgroundColor: '#f9f9f9',
     },
     multiLineInput: { minHeight: 100, textAlignVertical: 'top' },
     option: {
-        padding: 10,
+        padding: 12,
         borderWidth: 1,
         borderRadius: 8,
         borderColor: '#ccc',
-        marginBottom: 10,
+        marginBottom: 12,
+        backgroundColor: '#f9f9f9',
     },
     activeOption: { backgroundColor: '#6A1B9A', borderColor: '#6A1B9A' },
-    optionText: { textAlign: 'center' },
-    activeOptionText: { color: '#fff' },
-    tagContainer: { flexDirection: 'row', flexWrap: 'wrap' },
-    tag: { margin: 4, padding: 10, borderRadius: 20 },
-    activeTag: { backgroundColor: '#6A1B9A' },
+    optionText: { textAlign: 'center', fontSize: 16 },
+    activeOptionText: { color: '#fff', fontWeight: 'bold' },
+    tagContainer: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 16 },
+    tag: {
+        margin: 6,
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 25,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        backgroundColor: '#E0E0E0',
+    },
+    activeTag: { backgroundColor: '#6A1B9A', borderColor: '#6A1B9A' },
     inactiveTag: { backgroundColor: '#E0E0E0' },
-    tagText: { fontSize: 14 },
+    tagText: { fontSize: 14, color: '#333' },
     activeTagText: { color: '#fff' },
-    inactiveTagText: { color: '#000' },
-    starContainer: { flexDirection: 'row', justifyContent: 'center', marginBottom: 20 },
-    checkboxContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
-    checkboxLabel: { marginLeft: 8 },
+    inactiveTagText: { color: '#333' },
+    starContainer: { flexDirection: 'row', justifyContent: 'center', marginVertical: 16 },
+    checkboxContainer: { flexDirection: 'row', alignItems: 'center', marginVertical: 16 },
+    checkboxLabel: { marginLeft: 10, fontSize: 16, color: '#333' },
     submitButton: {
         backgroundColor: '#6A1B9A',
-        padding: 15,
-        borderRadius: 8,
+        paddingVertical: 15,
+        paddingHorizontal: 25,
+        borderRadius: 12,
         alignItems: 'center',
+        marginVertical: 20,
     },
-    submitButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+    submitButtonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
     loadingIndicator: { marginTop: 20 },
+    warning: {
+        color: 'red',
+        textAlign: 'center',
+        marginVertical: 8,
+    },
 });
 
 export default SaveRouteScreen;

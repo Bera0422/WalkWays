@@ -40,10 +40,14 @@ export type RootStackParamList = {
   ProfileStack: {
     screen: string;
   }
+  AuthStack: {
+    screen: string;
+  }
   Profile: undefined;
   SignUp: undefined;
   Login: undefined;
   PasswordReset: undefined;
+  WalkHistory: undefined;
 };
 
 export type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;

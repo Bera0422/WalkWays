@@ -8,8 +8,6 @@ import {
   SafeAreaView,
   StatusBar,
   AppState,
-  FlatList,
-  Image,
 } from 'react-native';
 import { convertDistance } from 'geolib';
 import { Timestamp } from 'firebase/firestore';
@@ -200,7 +198,7 @@ const TrackingScreen: React.FC<Props> = ({ route, navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
-      <ScrollView>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* Friends List (Horizontal Scroll) */}
         {/* <View>
           <Text style={styles.friendsText} >Friends on this route</Text>
@@ -251,7 +249,22 @@ export default TrackingScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#f7f8fa',
+  },
+  scrollContainer: {
+    paddingVertical: 20,
+  },
+  walkDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    marginHorizontal: 15,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
   },
   noWalkContainer: {
     flex: 1,
@@ -274,27 +287,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  walkDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 20,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    marginHorizontal: 10,
-    marginVertical: 10,
-    elevation: 2,
-  },
   detailContainer: {
     alignItems: 'center',
   },
   detailLabel: {
     fontSize: 14,
-    color: '#777',
+    color: '#888',
+    fontWeight: '600',
+    marginBottom: 5,
   },
   detailValue: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#2c3e50',
   },
   mapContainer: {
     height: 500,

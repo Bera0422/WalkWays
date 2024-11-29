@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions, ActivityIndicator } from 'react-native';
 import MapView from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
 import { getDistance } from 'geolib'; // Import geolib for distance calculation
 import RenderHTML from 'react-native-render-html';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const MAX_WAYPOINTS = 25;
 const proximityThreshold = 20; // Meters
@@ -173,75 +174,109 @@ const TrackingMap: React.FC<TrackingMapProp> = ({ updateDistanceWalked, waypoint
 
     return (
         <View style={styles.container}>
-            {location ? (
-                <>
-                    <MapView
-                        provider="google"
-                        style={styles.map}
-                        initialRegion={{
-                            latitude: location.coords.latitude,
-                            longitude: location.coords.longitude,
-                            latitudeDelta: 0.01,
-                            longitudeDelta: 0.01,
-                        }}
-                        showsUserLocation={true}
-                    >
-                        {/* Route directions */}
-                        <MapViewDirections
-                            origin={startCoords}
-                            destination={endCoords}
-                            waypoints={waypoints}
-                            mode="WALKING"
-                            apikey={apiKey}
-                            strokeWidth={4}
-                            strokeColor="blue"
-                            onReady={handleDirections}
-                        />
-                        {/* Highlight visited waypoints */}
-                        {visitedWaypoints.length > 1 &&
-                            getWaypointBatches(visitedWaypoints).map((batch, index) => (
-                                <MapViewDirections
-                                    key={index} // Ensure unique keys for each batch
-                                    origin={batch[0].coords}
-                                    destination={batch[batch.length - 1].coords}
-                                    waypoints={batch.slice(1, batch.length - 1).map((wp: any) => wp.coords)}
-                                    mode="WALKING"
-                                    apikey={apiKey}
-                                    strokeWidth={4}
-                                    strokeColor="green" // Visited portion color
-                                />
-                            ))}
-                    </MapView>
-                    <View style={styles.instructionContainer}>
-                        <RenderHTML
-                            contentWidth={width}
-                            source={{ html: currentInstruction || 'Loading directions...' }}
-                        />
-                    </View>
-                </>
-            ) : (
-                <Text>{errMsg || 'Loading map...'}</Text>
-            )}
+          {location ? (
+            <>
+              <MapView
+                provider="google"
+                style={styles.map}
+                initialRegion={{
+                  latitude: location.coords.latitude,
+                  longitude: location.coords.longitude,
+                  latitudeDelta: 0.01,
+                  longitudeDelta: 0.01,
+                }}
+                showsUserLocation={true}
+              >
+                {/* Route directions */}
+                <MapViewDirections
+                  origin={startCoords}
+                  destination={endCoords}
+                  waypoints={waypoints}
+                  mode="WALKING"
+                  apikey={apiKey}
+                  strokeWidth={4}
+                  strokeColor="#007AFF" // Updated route color
+                  onReady={handleDirections}
+                />
+                {/* Highlight visited waypoints */}
+                {visitedWaypoints.length > 1 &&
+                  getWaypointBatches(visitedWaypoints).map((batch, index) => (
+                    <MapViewDirections
+                      key={index}
+                      origin={batch[0].coords}
+                      destination={batch[batch.length - 1].coords}
+                      waypoints={batch.slice(1, batch.length - 1).map((wp: any) => wp.coords)}
+                      mode="WALKING"
+                      apikey={apiKey}
+                      strokeWidth={4}
+                      strokeColor="#34C759" // Visited portion color
+                    />
+                  ))}
+              </MapView>
+              <View style={styles.instructionContainer}>
+                <MaterialIcons name="directions-walk" size={24} color="#6A1B9A" />
+                <RenderHTML
+                  contentWidth={width}
+                  source={{ html: currentInstruction || 'Loading directions...' }}
+                  baseStyle={styles.instructionText}
+                />
+              </View>
+            </>
+          ) : (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#007AFF" />
+              <Text style={styles.loadingText}>{errMsg || 'Loading map...'}</Text>
+            </View>
+          )}
         </View>
-    );
-};
-
-const styles = StyleSheet.create({
-    container: { flex: 1 },
-    map: { flex: 1 },
-    instructionContainer: {
+      );
+    };
+    
+    const styles = StyleSheet.create({
+      container: {
+        flex: 1,
+        backgroundColor: '#F9F9F9',
+      },
+      map: {
+        flex: 1,
+        borderRadius: 10,
+        margin: 10,
+        overflow: 'hidden',
+        shadowColor: '#000',
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 5,
+      },
+      instructionContainer: {
         position: 'absolute',
         bottom: 20,
-        backgroundColor: 'rgba(235, 218, 244, 0.9)',
-        padding: 18,
-        borderRadius: 8,
-        marginHorizontal: 20,
-        alignSelf: 'center'
-    },
-    instructionText: {
+        alignSelf: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        padding: 16,
+        borderRadius: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 5,
+      },
+      instructionText: {
         fontSize: 16,
-        textAlign: 'center',
-    },
-});
-
-export default TrackingMap;
+        color: '#333',
+        marginLeft: 10,
+      },
+      loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      loadingText: {
+        fontSize: 16,
+        color: '#888',
+        marginTop: 10,
+      },
+    });
+    
+    export default TrackingMap;
+    

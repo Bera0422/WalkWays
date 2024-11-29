@@ -15,6 +15,7 @@ import { useAuth } from './src/context/AuthContext';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; // or your preferred icon library
 import SaveRouteScreen from './screens/SaveRouteScreen';
 import PasswordResetScreen from './screens/PasswordResetScreen';
+import WalkHistoryScreen from './screens/WalkHistoryScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -34,8 +35,6 @@ function HomeStack() {
           headerStyle: { backgroundColor: '#6A2766' },
           headerTintColor: '#fff',
         }} />
-      {/* <Stack.Screen name="Tracking" component={TrackingScreen} /> */}
-      {/* <Stack.Screen name="Feedback" component={FeedbackScreen} /> */}
     </Stack.Navigator>
   );
 }
@@ -48,7 +47,7 @@ function TrackingStack() {
         component={TrackingScreen}
         options={{
           title: 'Tracking Walk',
-          headerStyle: { backgroundColor: '#4CAF50' },
+          headerStyle: { backgroundColor: '#6A2766' },
           headerTintColor: '#fff',
         }} />
       <Stack.Screen
@@ -78,7 +77,7 @@ function CommunityStack() {
         name="Community"
         component={CommunityScreen}
         options={{
-          title: 'Your Community',
+          title: 'Community',
           headerStyle: { backgroundColor: '#6A2766' },
           headerTintColor: '#fff',
         }} />
@@ -102,6 +101,15 @@ function ProfileStack() {
         component={PasswordResetScreen}
         options={{
           title: 'Password Reset',
+          headerStyle: { backgroundColor: '#6A2766' },
+          headerTintColor: '#fff',
+        }}
+      />
+      <Stack.Screen
+        name="WalkHistory"
+        component={WalkHistoryScreen}
+        options={{
+          title: 'All Walk History',
           headerStyle: { backgroundColor: '#6A2766' },
           headerTintColor: '#fff',
         }}

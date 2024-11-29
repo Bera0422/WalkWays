@@ -16,6 +16,8 @@ export interface Route {
   }
   rating: number;
   timestamp: Timestamp;
+  displayOnHome: boolean,
+  curated: boolean,
 }
 
 export interface IReview {

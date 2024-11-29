@@ -35,7 +35,7 @@ const CommunityScreen: React.FC = () => {
 
     const updatePost = (updatedPost: Post) => {
         setPosts(prevPosts =>
-            prevPosts.map(post => (post.id === updatedPost.id ? updatedPost : post))
+            prevPosts.map(post => (post.id === updatedPost.id ? {...post, ...updatedPost} : post))
         );
     };
 
@@ -51,6 +51,7 @@ const CommunityScreen: React.FC = () => {
     const handleCommentPost = async (postId: string, comment: string) => {
         try {
             const updatedPost = await addCommentToPost(postId, comment, user?.displayName, user?.uid);
+            console.log(updatedPost);
             if (updatedPost) updatePost(updatedPost);
         } catch (error) {
             console.error("Failed to add comment:", error);

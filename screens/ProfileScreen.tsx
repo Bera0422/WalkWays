@@ -5,9 +5,12 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { fetchUserProfile, fetchUserWalkHistory } from '../src/services/firestoreService';
 import { Switch } from 'react-native-gesture-handler';
-import { Avatar } from 'react-native-paper';
+import { Avatar, Icon } from 'react-native-paper';
 import { convertDistance } from 'geolib';
 import { ProfileScreenNavigationProp } from '../src/types/props';
+import WalkHistoryItem from '../src/components/WalkHistoryItem';
+
+const WALK_HISTORY_LIMIT = 3;
 
 interface Props {
     navigation: ProfileScreenNavigationProp;
@@ -30,7 +33,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                 if (user) {
                     const [profile, history] = await Promise.all([
                         fetchUserProfile(user.uid),
-                        fetchUserWalkHistory(user.uid)
+                        fetchUserWalkHistory(user.uid, WALK_HISTORY_LIMIT),
                     ]);
                     setProfileData(profile);
                     setWalkHistory(history);
@@ -69,55 +72,60 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
     return (
         <ScrollView style={styles.container}>
-            {/* Header Section */}
-            <View style={styles.header}>
-                <View style={styles.photoContainer}>
-                    <Avatar.Text style={styles.avatar} size={95} label={profileData.name.charAt(0).toUpperCase()} />
-                    {/* <TouchableOpacity style={styles.editIcon}>
-                        <Text style={styles.editText}>Edit</Text>
-                    </TouchableOpacity> */}
-                </View>
+            {/* Hero Section */}
+            <View style={styles.heroSection}>
+                <Avatar.Text
+                    style={styles.avatar}
+                    size={100}
+                    label={profileData.name.charAt(0).toUpperCase()}
+                />
                 <Text style={styles.name}>{profileData.name}</Text>
                 <Text style={styles.email}>{profileData.email}</Text>
                 <Text style={styles.createdAt}>Joined: {new Date(profileData.createdAt?.seconds * 1000).toLocaleDateString()}</Text>
-
             </View>
 
             {/* Walk History Section */}
-            <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Walk History</Text>
+            <View style={styles.card}>
+                <Text style={styles.cardTitle}>Walk History</Text>
                 {walkHistory.map((walk, index) => (
-                    <View key={index} style={styles.walkHistoryItem}>
-                        <Text style={styles.walkHistoryText}>{walk.routeName}</Text>
-                        <Text style={styles.walkDetails}>
-                            {convertDistance(walk.distanceWalked, 'mi').toFixed(1)} miles - {`${Math.floor(walk.timeTaken / 60).toString()}`} mins
-                        </Text>
-                        <Text style={styles.walkDate}>Completed: {new Date(walk.timestamp.seconds * 1000).toLocaleDateString()}</Text>
-                    </View>
+                    <WalkHistoryItem
+                    key={index}
+                    routeName={walk.routeName}
+                    distanceWalked={walk.distanceWalked}
+                    timeTaken={walk.timeTaken}
+                    timestamp={walk.timestamp}
+                />
                 ))}
-                {/* <Button title="View All Walk History" onPress={() => console.log('View All Walk History')} /> */}
+                <TouchableOpacity
+                    style={styles.seeAllButton}
+                onPress={() => navigation.navigate('WalkHistory')}
+                >
+                    <Text style={styles.seeAllText}>See All Walk History</Text>
+                </TouchableOpacity>
             </View>
 
             {/* Preferences Section */}
-            <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Preferences</Text>
+            <View style={styles.card}>
+                <Text style={styles.cardTitle}>Preferences</Text>
                 <View style={styles.preferenceItem}>
-                    <Text>Notifications:</Text>
+                    <Text>Notifications</Text>
                     <Switch
-                        trackColor={{ true: '#6A2766' }}
+                        trackColor={{ true: '#6200ea' }}
                         onValueChange={toggleSwitch}
                         value={isEnabled}
                     />
                 </View>
             </View>
 
-            {/* Settings & Actions */}
-            <View style={styles.section}>
-                {/* <Text style={styles.sectionTitle}>Settings</Text> */}
-                {/* <Button title="Edit Profile" onPress={() => console.log('Edit Profile')} /> */}
-                <Button title="Change Password" onPress={() => navigation.navigate("PasswordReset")} />
-                <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-                    <Text style={styles.logoutButtonText}>Logout</Text>
+            {/* Actions Section */}
+            <View style={styles.card}>
+                <TouchableOpacity style={styles.actionItem} onPress={() => navigation.navigate('PasswordReset')}>
+                    <Icon source="lock" size={24} color="#6200ea" />
+                    <Text style={styles.actionText}>Change Password</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.actionItem} onPress={handleLogout}>
+                    <Icon source="logout" size={24} color="red" />
+                    <Text style={styles.logoutText}>Logout</Text>
                 </TouchableOpacity>
             </View>
         </ScrollView>
@@ -125,54 +133,48 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 20, backgroundColor: '#fff' },
-    header: { alignItems: 'center', marginBottom: 20 },
-    photoContainer: { position: 'relative' },
-    profilePhoto: { width: 100, height: 100, borderRadius: 50 },
-    avatar: { backgroundColor: '#6200ea' },
-    editIcon: {
-        position: 'absolute',
-        bottom: 0,
-        right: 0,
-        backgroundColor: '#007BFF',
-        padding: 5,
-        borderRadius: 10,
+    container: { flex: 1, backgroundColor: '#f5f5f5' },
+    heroSection: {
+        backgroundColor: '#6200ea',
+        paddingVertical: 30,
+        alignItems: 'center',
     },
-    editText: { color: '#fff', fontSize: 12 },
-    name: { fontSize: 24, fontWeight: 'bold', marginVertical: 5 },
-    email: { fontSize: 16, color: '#555' },
-    createdAt: { fontSize: 12, color: '#aaa' },
-    section: { marginBottom: 20 },
-    sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
-    walkHistoryItem: { marginBottom: 15, padding: 10, backgroundColor: '#f9f9f9', borderRadius: 5 },
-    walkHistoryText: { fontSize: 16, fontWeight: 'bold' },
-    walkDetails: { fontSize: 14, color: '#555' },
-    walkDate: { fontSize: 12, color: '#888' },
-    preferenceItem: { flexDirection: 'row', justifyContent: 'space-between', marginVertical: 5 },
-    preferenceValue: { fontWeight: 'bold', color: '#333' },
-    // Button container style
-    logoutButton: {
-        backgroundColor: '#6200ea', // Purple background
-        paddingVertical: 12,
-        paddingHorizontal: 20,
+    avatar: { backgroundColor: '#fff' },
+    name: { fontSize: 22, fontWeight: 'bold', color: '#fff', marginTop: 10 },
+    email: { fontSize: 14, color: '#ddd' },
+    createdAt: { fontSize: 12, color: '#ddd', marginTop: 10 },
+    card: {
+        backgroundColor: '#fff',
+        marginHorizontal: 15,
+        marginVertical: 10,
+        borderRadius: 10,
+        padding: 15,
+        elevation: 3,
+    },
+    cardTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
+    seeAllButton: {
+        marginTop: 10,
+        padding: 10,
+        backgroundColor: '#6200ea',
         borderRadius: 8,
         alignItems: 'center',
-        justifyContent: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        marginVertical: 10,
-        width: '50%',
-        alignSelf: 'center'
-
     },
-    logoutButtonText: {
-        color: '#fff', // White text color
-        fontSize: 16,
-        fontWeight: 'bold',
+    seeAllText: { color: '#fff', fontWeight: 'bold' },
+    preferenceItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginVertical: 5,
     },
-
+    actionItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f0f0f0',
+    },
+    actionText: { marginLeft: 10, fontSize: 16, color: '#6200ea' },
+    logoutText: { marginLeft: 10, fontSize: 16, color: 'red' },
 });
 
 export default ProfileScreen;

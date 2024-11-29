@@ -12,7 +12,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { RouteDetailsScreenRouteProp, RouteDetailsScreenNavigationProp } from '../src/types/props';
-import { FontAwesome } from '@expo/vector-icons'; // For star icons
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import Review from '../src/components/Review';
 import { Dimensions } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
@@ -145,12 +145,24 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
           <Marker coordinate={waypoints[waypoints.length - 1]} title="End" pinColor="red" />
         </MapView>
 
-        {/* Stats */}
         <View style={styles.statsContainer}>
-          <Stat label="Estimated Time" value={routeDetails.estimatedTime} />
-          <Stat label="Distance" value={routeDetails.distance} />
-          <Stat label="Elevation" value={routeDetails.elevation} />
+          <View style={styles.stat}>
+          <Ionicons name="walk" size={20} color="#6C63FF" />
+          <Text style={styles.statLabel}>Estimated Time</Text>
+            <Text style={styles.statValue}>{routeDetails.estimatedTime}</Text>
+          </View>
+          <View style={styles.stat}>
+          <Ionicons name="time" size={20} color="#6C63FF" />
+          <Text style={styles.statLabel}>Distance</Text>
+            <Text style={styles.statValue}>{routeDetails.distance}</Text>
+          </View>
+          <View style={styles.stat}>
+          <Ionicons name="triangle" size={20} color="#6C63FF" />
+          <Text style={styles.statLabel}>Elevation</Text>
+            <Text style={styles.statValue}>{routeDetails.elevation}</Text>
+          </View>
         </View>
+
 
         {/* Community Feedback */}
 
@@ -191,44 +203,113 @@ const Stat = ({ label, value }: { label: string, value: any }) => (
   </View>
 );
 
+// const styles = StyleSheet.create({
+//   container: { flex: 1, backgroundColor: '#f9f9f9' },
+//   scrollContainer: { paddingBottom: 80 },
+//   carouselImage: {
+//     width: win.width - 20,
+//     height: 200,
+//     margin: 3,
+//     marginTop: 10,
+//     borderRadius: 10
+//   },
+//   detailsContainer: { padding: 20 },
+//   routeName: { fontSize: 24, fontWeight: 'bold', color: '#333' },
+//   tagsAndRating: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+//   tagsContainer: { flexDirection: 'row', flexWrap: 'wrap' },
+//   rating: { fontSize: 18, fontWeight: '600', color: '#555' },
+//   descriptionTitle: { fontSize: 18, fontWeight: 'bold', marginTop: 10 },
+//   descriptionText: { fontSize: 14, lineHeight: 20, color: '#666', marginTop: 5 },
+//   map: { height: 200, marginVertical: 20, borderRadius: 10 },
+//   statsContainer: { flexDirection: 'row', justifyContent: 'space-around', marginTop: 20 },
+//   stat: { alignItems: 'center' },
+//   statLabel: { fontSize: 12, color: '#888' },
+//   statValue: { fontSize: 16, fontWeight: '600', color: '#333' },
+//   feedbackContainer: { padding: 20, marginTop: 20 },
+//   feedbackTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
+//   startWalkButton: {
+//     position: 'absolute',
+//     bottom: 0,
+//     left: 0,
+//     right: 0,
+//     backgroundColor: '#4CAF50',
+//     paddingVertical: 15,
+//     alignItems: 'center',
+//   },
+//   startWalkText: { color: '#fff', fontSize: 18, fontWeight: '600' },
+//   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+//   loadingText: { marginTop: 10, fontSize: 16, color: '#555' },
+//   errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+//   errorText: { fontSize: 18, color: '#ff4444' },
+// });
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9f9f9' },
+  container: { flex: 1, backgroundColor: '#f8f9fa' },
   scrollContainer: { paddingBottom: 80 },
   carouselImage: {
     width: win.width - 20,
     height: 200,
-    margin: 3,
-    marginTop: 10,
-    borderRadius: 10
+    marginHorizontal: 10,
+    marginTop: 15,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
-  detailsContainer: { padding: 20 },
-  routeName: { fontSize: 24, fontWeight: 'bold', color: '#333' },
-  tagsAndRating: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  detailsContainer: { paddingHorizontal: 20, paddingVertical: 15, backgroundColor: '#fff' },
+  routeName: { fontSize: 26, fontWeight: 'bold', color: '#2c3e50', marginBottom: 10 },
+  tagsAndRating: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
   tagsContainer: { flexDirection: 'row', flexWrap: 'wrap' },
-  rating: { fontSize: 18, fontWeight: '600', color: '#555' },
-  descriptionTitle: { fontSize: 18, fontWeight: 'bold', marginTop: 10 },
-  descriptionText: { fontSize: 14, lineHeight: 20, color: '#666', marginTop: 5 },
-  map: { height: 200, marginVertical: 20, borderRadius: 10 },
-  statsContainer: { flexDirection: 'row', justifyContent: 'space-around', marginTop: 20 },
-  stat: { alignItems: 'center' },
-  statLabel: { fontSize: 12, color: '#888' },
-  statValue: { fontSize: 16, fontWeight: '600', color: '#333' },
-  feedbackContainer: { padding: 20, marginTop: 20 },
-  feedbackTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
+  rating: { fontSize: 18, fontWeight: '600', color: '#333' },
+  descriptionTitle: { fontSize: 21, fontWeight: 'bold', color: '#34495e', marginBottom: 5 },
+  descriptionText: { fontSize: 15, lineHeight: 22, color: '#34495e' },
+  map: { height: 250, marginVertical: 20, marginHorizontal: 10, borderRadius: 10 },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    marginVertical: 15,
+  },
+  stat: { alignItems: 'center', flex: 1 },
+  statLabel: {
+    fontSize: 14,
+    color: '#34495e',
+    marginTop: 8,
+  },
+  statValue: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#2c3e50',
+    marginTop: 4,
+  },
+  feedbackContainer: { padding: 20, marginTop: 20, backgroundColor: '#fff', borderRadius: 10, marginHorizontal: 10 },
+  feedbackTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 10, color: '#2c3e50' },
   startWalkButton: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#27ae60',
     paddingVertical: 15,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
-  startWalkText: { color: '#fff', fontSize: 18, fontWeight: '600' },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  loadingText: { marginTop: 10, fontSize: 16, color: '#555' },
-  errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  errorText: { fontSize: 18, color: '#ff4444' },
+  startWalkText: { color: '#fff', fontSize: 18, fontWeight: '600', letterSpacing: 0.5 },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#ecf0f1' },
+  loadingText: { marginTop: 10, fontSize: 16, color: '#7f8c8d' },
+  errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 },
+  errorText: { fontSize: 18, color: '#e74c3c', textAlign: 'center' },
 });
+
 
 export default RouteDetailsScreen;

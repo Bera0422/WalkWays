@@ -55,8 +55,8 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   previewImage: {
-    width: 100,
-    height: 100,
+    width: 300,
+    height: 300,
     marginTop: 10,
     borderRadius: 8,
   },

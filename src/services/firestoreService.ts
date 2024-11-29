@@ -295,12 +295,12 @@ export const fetchUserProfile = async (userId: string) => {
  * @returns Array of walk history items
  */
 //TODO: Find an efficient way to fetch the user walk history
-export const fetchUserWalkHistory = async (userId: string) => {
+export const fetchUserWalkHistory = async (userId: string, limit: number = -1) => {
     const userDocRef = doc(db, 'users', userId);
     const userDoc = await getDoc(userDocRef);
     if (userDoc.exists()) {
         const userData = userDoc.data();
-        const completedRoutesIds = userData?.completedRoutes || [];
+        const completedRoutesIds = userData?.completedRoutes.slice(0, limit) || [];
         console.log(completedRoutesIds);
         const completedRoutesPromises = completedRoutesIds.map((completedRouteDoc: any) => getDoc(completedRouteDoc));
         const completedRouteDocs = await Promise.all(completedRoutesPromises);
@@ -319,6 +319,7 @@ export const toggleLikePost = async (postId: string, userId: string = DEFAULT_US
             [`likes.${userId}`]: isLiked ? null : true
         });
         const updatedRef = await getDoc(postRef);
+        console.log(updatedRef.data());
         if (updatedRef.exists()) {
             return {
                 id: updatedRef.id,
