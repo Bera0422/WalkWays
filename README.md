@@ -1,6 +1,9 @@
 # WalkWays
 ### Ahmed Bera Pay
 
+**IMPORTANT!** [Notes for Privacy/Security](privacy_note.md)
+
+### [Privacy Policy](PrivacyPolicy.md)
 ## Summary of Project
 
  This project develops a cross-platform mobile app enhancing the casual walking experience. Unlike apps for competitive sports or hiking, WalkWays offers curated, user-friendly urban walking routes with local safety, accessibility, and scenery feedback. By catering to casual walkers and tourists alike, it creates a richer, more enjoyable walking experience, encouraging both physical and mental health. The app fosters micro-communities centered around shared walking paths while offering curated routes for first-time visitors or explorers.
@@ -189,8 +192,6 @@ Initial Mockup for the UI:
   - **Google Maps API** for navigation and route information.
 
   - **Firebase Authentication** for secure user logins.
-
-  - **Social Media APIs (Optional)** for sharing routes.
 
  The measure of success will mainly depend on the ease of data transfer and the reliability of the services provided. Although it has less importance for earlier versions, scalability will be another success criterion in the future. As intuitiveness matters in this application, the seamlessness of the 3rd-party integrations will also be a point to determine the success of the technical architecture. Success in the design of data structures and storage can be measured by how easy it is to add or remove feedback mechanisms.
 
