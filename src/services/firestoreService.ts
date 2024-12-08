@@ -395,3 +395,20 @@ export const saveRoute = async (routeData: any) => {
 
 
 }
+
+// Function to delete the user's walking history
+export const deleteWalkingHistory = async (userId: string = DEFAULT_USER_ID) => {
+    const userDocRef = doc(db, 'users', userId);
+    const userDoc = await getDoc(userDocRef);
+
+    if (userDoc.exists()) {
+
+        await updateDoc(userDocRef, {
+            completedRoutes: []
+        });
+        console.log(`Deleted walk history for user`);
+    } else {
+        console.log("Failed to delete walk history for user");
+    }
+
+};
