@@ -33,27 +33,33 @@ const RecordWalk: React.FC<RecordWalkProp> = ({ onEndWalk, updateDistanceWalked 
         longitudeDelta: 0.01,
     });
 
-    // const startCoords = { latitude: 48.8566, longitude: 2.3522 };
-    // const endCoords = { latitude: 48.8716, longitude: 2.3011 };
-
-    // const startCoords = { latitude: 47.7616868, longitude: -122.2080222 };
-    // const endCoords = { latitude: 47.7633868, longitude: -122.2087400 };
-
     const mockCoords = [
-        { latitude: 48.8566, longitude: 2.3522 },
-        { latitude: 48.8589, longitude: 2.3397 },
-        { latitude: 48.8623, longitude: 2.3303 },
-        { latitude: 48.8655, longitude: 2.3202 },
-        { latitude: 48.8686, longitude: 2.3105 },
-        { latitude: 48.8716, longitude: 2.3011 },
-    ];
-
-    // const routeWaypoints = [
-    //     { latitude: 47.7616868, longitude: -122.2080222 },
-    //     { latitude: 47.7615385, longitude: -122.2093291 },
-    //     { latitude: 47.7633868, longitude: -122.2087400 },
-    //     { latitude: 47.7616758, longitude: -122.2077624 },
-    // ];
+        { "latitude": 47.761710703963175, "longitude": -122.20834938710469 },
+        { "latitude": 47.76171549077574, "longitude": -122.20856426475893 },
+        { "latitude": 47.76185967529987, "longitude": -122.20834720467013 },
+        { "latitude": 47.761880415511214, "longitude": -122.20812266066966 },
+        { "latitude": 47.761821557729775, "longitude": -122.2078262474662 },
+        { "latitude": 47.761971117779716, "longitude": -122.20312334561318 },
+        { "latitude": 47.762030311583885, "longitude": -122.20280236885708 },
+        { "latitude": 47.76205267534279, "longitude": -122.20258979309912 },
+        { "latitude": 47.762034440449874, "longitude": -122.20190079044627 },
+        { "latitude": 47.7620365643163, "longitude": -122.20145843813644 },
+        { "latitude": 47.762192356273445, "longitude": -122.20110668476472 },
+        { "latitude": 47.76192480064372, "longitude": -122.19531455604154 },
+        { "latitude": 47.76206759203461, "longitude": -122.19506302784666 },
+        { "latitude": 47.76191940911793, "longitude": -122.19488742659365 },
+        { "latitude": 47.76190829446358, "longitude": -122.19464501046674 },
+        { "latitude": 47.76197239778633, "longitude": -122.19426392315874 },
+        { "latitude": 47.761070756027244, "longitude": -122.19213020344944 },
+        { "latitude": 47.76095861125946, "longitude": -122.1918797832929 },
+        { "latitude": 47.76082163822946, "longitude": -122.19171805646552 },
+        { "latitude": 47.76067772253781, "longitude": -122.19161658468764 },
+        { "latitude": 47.760533043575634, "longitude": -122.1915268481742 },
+        { "latitude": 47.76037183577582, "longitude": -122.19147916525799 },
+        { "latitude": 47.7592708222674, "longitude": -122.1909518687906 },
+        { "latitude": 47.75911572403841, "longitude": -122.19126795749199 },
+        { "latitude": 47.75914832550838, "longitude": -122.19095999384383 }
+    ]
 
 
     // Mocked movement simulation
@@ -262,7 +268,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 3,
         elevation: 4, // For Android shadow
-      },
+    },
 });
 
 export default RecordWalk;

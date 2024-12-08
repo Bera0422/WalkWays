@@ -43,72 +43,49 @@ const TrackingMap: React.FC<TrackingMapProp> = ({ updateDistanceWalked, waypoint
     longitudeDelta: 0.01,
   });
 
-  // const startCoords = { latitude: 48.8566, longitude: 2.3522 };
-  // const endCoords = { latitude: 48.8716, longitude: 2.3011 };
-
-  // const startCoords = { latitude: 47.7616868, longitude: -122.2080222 };
-  // const endCoords = { latitude: 47.7633868, longitude: -122.2087400 };
-
-  // const routeWaypoints = [
-  //     { latitude: 48.8566, longitude: 2.3522 },
-  //     { latitude: 48.8589, longitude: 2.3397 },
-  //     { latitude: 48.8623, longitude: 2.3303 },
-  //     { latitude: 48.8655, longitude: 2.3202 },
-  //     { latitude: 48.8686, longitude: 2.3105 },
-  //     { latitude: 48.8716, longitude: 2.3011 },
-  // ];
-
-  // const routeWaypoints = [
-  //     { latitude: 47.7616868, longitude: -122.2080222 },
-  //     { latitude: 47.7615385, longitude: -122.2093291 },
-  //     { latitude: 47.7633868, longitude: -122.2087400 },
-  //     { latitude: 47.7616758, longitude: -122.2077624 },
-  // ];
-
-
   // Mocked movement simulation
-  useEffect(() => {
-    let currentIndex = 0;
-    setLocation({
-      coords: waypoints[0],
-      timestamp: Date.now(),
-      mocked: true,
-    } as Location.LocationObject);
+  // useEffect(() => {
+  //   let currentIndex = 0;
+  //   setLocation({
+  //     coords: waypoints[0],
+  //     timestamp: Date.now(),
+  //     mocked: true,
+  //   } as Location.LocationObject);
 
-    const simulateMovement = () => {
-      if (currentIndex < instructionWaypoints.length) {
-        const nextCoords = instructionWaypoints[currentIndex];
-        setLocation({
-          coords: nextCoords,
-          timestamp: Date.now(),
-          mocked: true,
-        } as Location.LocationObject);
+  //   const simulateMovement = () => {
+  //     if (currentIndex < instructionWaypoints.length) {
+  //       const nextCoords = instructionWaypoints[currentIndex];
+  //       setLocation({
+  //         coords: nextCoords,
+  //         timestamp: Date.now(),
+  //         mocked: true,
+  //       } as Location.LocationObject);
 
-        currentIndex += 1;
-      }
-    };
+  //       currentIndex += 1;
+  //     }
+  //   };
 
-    const intervalId = setInterval(simulateMovement, 2000); // Move to the next waypoint every 2 seconds
-    return () => clearInterval(intervalId); // Cleanup on unmount
-  }, [instructionWaypoints]);
+  //   const intervalId = setInterval(simulateMovement, 2000); // Move to the next waypoint every 2 seconds
+  //   return () => clearInterval(intervalId); // Cleanup on unmount
+  // }, [instructionWaypoints]);
 
   // Real movement
-  // useEffect(() => {
-  //   (async () => {
-  //     let { status } = await Location.requestForegroundPermissionsAsync();
-  //     if (status !== 'granted') {
-  //       setErrorMsg('Permission to access location was denied');
-  //       return;
-  //     }
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
 
-  //     Location.watchPositionAsync(
-  //       { accuracy: Location.Accuracy.High, distanceInterval: 8 },
-  //       (loc) => {
-  //         setLocation(loc);
-  //       }
-  //     );
-  //   })();
-  // }, []);
+      Location.watchPositionAsync(
+        { accuracy: Location.Accuracy.High, distanceInterval: 8 },
+        (loc) => {
+          setLocation(loc);
+        }
+      );
+    })();
+  }, []);
 
   // Update visited waypoints and calculate distance
   useEffect(() => {

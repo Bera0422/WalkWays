@@ -88,6 +88,7 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
       </View>
     );
   }
+  console.log(waypoints);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -128,8 +129,8 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
           initialRegion={{
             latitude: routeDetails.details.location.latitude,
             longitude: routeDetails.details.location.longitude,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.005,
+            latitudeDelta: 0.03, //41.902782 12.496366
+            longitudeDelta: 0.03,
           }}
         >
           <MapViewDirections
@@ -147,12 +148,12 @@ const RouteDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 
         <View style={styles.statsContainer}>
           <View style={styles.stat}>
-          <Ionicons name="walk" size={20} color="#6C63FF" />
+          <Ionicons name="time" size={20} color="#6C63FF" />
           <Text style={styles.statLabel}>Estimated Time</Text>
             <Text style={styles.statValue}>{routeDetails.estimatedTime}</Text>
           </View>
           <View style={styles.stat}>
-          <Ionicons name="time" size={20} color="#6C63FF" />
+          <Ionicons name="walk" size={20} color="#6C63FF" />
           <Text style={styles.statLabel}>Distance</Text>
             <Text style={styles.statValue}>{routeDetails.distance}</Text>
           </View>
