@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, TouchableWithoutFeedback, Keyboard, StatusBar, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, TouchableWithoutFeedback, Keyboard, StatusBar, ActivityIndicator, RefreshControl } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import RouteCard from '../components/RouteCard';
-import SearchBar from '../components/SearchBar';
+import RouteCard from '../src/components/RouteCard';
+import SearchBar from '../src/components/SearchBar';
 import _routes from '../data/routes';
-import { fetchRoutes, fetchTags } from '../firestoreService';
 import { Route } from '../src/types/types';
+import { fetchRoutes, fetchTags } from '../src/services/firestoreService';
 
 const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [routes, setRoutes] = useState<Route[]>([]);
@@ -14,21 +14,22 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [filteredRoutes, setFilteredRoutes] = useState<Route[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const getRoutes = async () => {
+    try {
+      const fetchedRoutes = await fetchRoutes();
+      setRoutes(fetchedRoutes);
+      setFilteredRoutes(fetchedRoutes);
+    } catch (error) {
+      console.error("Failed to fetch routes:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     // Fetch routes data from Firestore when the component mounts
-    const getRoutes = async () => {
-      try {
-        const fetchedRoutes = await fetchRoutes();
-        setRoutes(fetchedRoutes);
-        setFilteredRoutes(fetchedRoutes);
-      } catch (error) {
-        console.error("Failed to fetch routes:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     getRoutes();
   }, []);
 
@@ -69,6 +70,12 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       route.details.description.toLowerCase().includes(query.toLowerCase())
     );
     setFilteredRoutes(filtered);
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await getRoutes();
+    setRefreshing(false);
   };
 
   if (loading) {
@@ -124,8 +131,10 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             <RouteCard
               item={item}
               onPress={() => navigation.navigate('RouteDetails', { routeItem: item })}
-            />
-          )}
+            />)}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         />
 
       </View>

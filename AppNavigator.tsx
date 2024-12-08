@@ -8,6 +8,14 @@ import TrackingScreen from './screens/TrackingScreen';
 import FeedbackScreen from './screens/FeedbackScreen';
 import CommunityScreen from './screens/CommunityScreen';
 import { RootStackParamList } from './src/types/props';
+import ProfileScreen from './screens/ProfileScreen';
+import LoginScreen from './screens/LoginScreen';
+import SignUpScreen from './screens/SignUpScreen';
+import { useAuth } from './src/context/AuthContext';
+import { MaterialCommunityIcons } from '@expo/vector-icons'; // or your preferred icon library
+import SaveRouteScreen from './screens/SaveRouteScreen';
+import PasswordResetScreen from './screens/PasswordResetScreen';
+import WalkHistoryScreen from './screens/WalkHistoryScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -27,8 +35,6 @@ function HomeStack() {
           headerStyle: { backgroundColor: '#6A2766' },
           headerTintColor: '#fff',
         }} />
-      {/* <Stack.Screen name="Tracking" component={TrackingScreen} /> */}
-      {/* <Stack.Screen name="Feedback" component={FeedbackScreen} /> */}
     </Stack.Navigator>
   );
 }
@@ -41,7 +47,7 @@ function TrackingStack() {
         component={TrackingScreen}
         options={{
           title: 'Tracking Walk',
-          headerStyle: { backgroundColor: '#4CAF50' },
+          headerStyle: { backgroundColor: '#6A2766' },
           headerTintColor: '#fff',
         }} />
       <Stack.Screen
@@ -52,7 +58,14 @@ function TrackingStack() {
           headerStyle: { backgroundColor: '#6A2766' },
           headerTintColor: '#fff',
         }} />
-      {/* <Stack.Screen name="Community" component={CommunityScreen} /> */}
+      <Stack.Screen
+        name="SaveRoute"
+        component={SaveRouteScreen}
+        options={{
+          title: 'Save Your Route',
+          headerStyle: { backgroundColor: '#6A2766' },
+          headerTintColor: '#fff',
+        }} />
     </Stack.Navigator>
   );
 }
@@ -64,7 +77,7 @@ function CommunityStack() {
         name="Community"
         component={CommunityScreen}
         options={{
-          title: 'Your Community',
+          title: 'Community',
           headerStyle: { backgroundColor: '#6A2766' },
           headerTintColor: '#fff',
         }} />
@@ -72,14 +85,92 @@ function CommunityStack() {
   );
 }
 
-export default function Navigation() {
+function ProfileStack() {
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          title: 'Your Profile',
+          headerStyle: { backgroundColor: '#6A2766' },
+          headerTintColor: '#fff',
+        }} />
+      <Stack.Screen
+        name="PasswordReset"
+        component={PasswordResetScreen}
+        options={{
+          title: 'Password Reset',
+          headerStyle: { backgroundColor: '#6A2766' },
+          headerTintColor: '#fff',
+        }}
+      />
+      <Stack.Screen
+        name="WalkHistory"
+        component={WalkHistoryScreen}
+        options={{
+          title: 'All Walk History',
+          headerStyle: { backgroundColor: '#6A2766' },
+          headerTintColor: '#fff',
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function AuthStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{
+          title: 'Login',
+          headerStyle: { backgroundColor: '#6A2766' },
+          headerTintColor: '#fff',
+        }} />
+      <Stack.Screen
+        name="SignUp"
+        component={SignUpScreen}
+        options={{
+          title: 'Sign Up',
+          headerStyle: { backgroundColor: '#6A2766' },
+          headerTintColor: '#fff',
+        }}
+      />
+      <Stack.Screen
+        name="PasswordReset"
+        component={PasswordResetScreen}
+        options={{
+          title: 'Password Reset',
+          headerStyle: { backgroundColor: '#6A2766' },
+          headerTintColor: '#fff',
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+export default function Navigation() {
+  const user = useAuth();
+  console.log(user.user);
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: '#6200ea',
+        tabBarInactiveTintColor: '#666',
+        tabBarStyle: { backgroundColor: '#fff' },
+      }}
+    >
       <Tab.Screen
         name="HomeStack"
         component={HomeStack}
         options={{
           title: 'Home',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="home" color={color} size={size} />
+          ),
         }}
       />
       <Tab.Screen
@@ -87,6 +178,9 @@ export default function Navigation() {
         component={TrackingStack}
         options={{
           title: 'Track',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="map-marker-path" color={color} size={size} />
+          ),
         }}
       />
       <Tab.Screen
@@ -94,9 +188,34 @@ export default function Navigation() {
         component={CommunityStack}
         options={{
           title: 'Community',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="account-group" color={color} size={size} />
+          ),
         }}
       />
-      {/* Profile Tab would be added later */}
+      {user.user ? (
+        <Tab.Screen
+          name="ProfileStack"
+          component={ProfileStack}
+          options={{
+            title: 'Profile',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="account-circle" color={color} size={size} />
+            ),
+          }}
+        />
+      ) : (
+        <Tab.Screen
+          name="AuthStack"
+          component={AuthStack}
+          options={{
+            title: 'Login',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="login" color={color} size={size} />
+            ),
+          }}
+        />
+      )}
     </Tab.Navigator>
   );
 }

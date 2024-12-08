@@ -19,13 +19,12 @@
 - 3.1 Display comprehensive information about each route (e.g., description, elevation, tags).
 - 3.2 Include an option to start tracking the route from this screen.
 - 3.3 Show user reviews and ratings related to the route.
-- 3.4 Provide a share option for the route details.
 
 ### 4. Tracking Walks
 - 4.1 Integrate map functionality to show current location and route path.
 - 4.2 Implement timer for walk duration.
 - 4.3 Implement step counter.
-- 4.4 Display walk details and friends' avatars on the route.
+- 4.4 Display walk details on the route.
 - 4.5 Add an 'End Walk' button that navigates to the Feedback screen.
 - 4.6 Implement functionality for recording and creating a new walking route.
 
@@ -39,12 +38,11 @@
 ### 6. Community Interaction
 - 6.1 Implement a Community screen to display posts from users.
 - 6.2 Create a PostCard component to showcase user posts with images, comments, and likes.
-- 6.3 Implement posting functionality for users to share experiences.
 
 ### 7. User Profile
 - 7.1 Design a Profile screen UI.
 - 7.2 Include options to view past walks and feedback given.
-- 7.3 Implement user settings for managing name, avatar, and preferences.
+- 7.3 Implement user settings for managing preferences.
 
 ---
 
@@ -62,7 +60,7 @@
 
 1.3 Allow password recovery/reset options.
    - Design UI for password recovery.
-   - Implement functionality to send recovery emails (if using Firebase).
+   - Implement functionality to send recovery emails.
 
 ---
 
@@ -106,10 +104,6 @@
    - Integrate functionality to display ratings and comments from users.
    - Design UI to present user reviews clearly.
 
-3.4 Provide a share option for the route details.
-   - Implement sharing functionality (using share APIs).
-   - Design a button for sharing route details easily.
-
 ---
 
 ### 4. Tracking Walks
@@ -126,9 +120,7 @@
    - Use device sensors (or a library) to track step count.
    - Display the current step count on the Tracking screen.
 
-4.4 Display walk details and friends' avatars on the route.
-   - Design the UI to show friends on the map.
-   - Integrate data fetching to retrieve friends' locations.
+4.4 Display walk details on the route.
 
 4.5 Add an 'End Walk' button.
    - Create the button component and style it.
@@ -168,10 +160,6 @@
    - Design the layout for user posts, including images and comments.
    - Implement functionality to like and comment on posts.
 
-6.3 Implement posting functionality.
-   - Create a form for users to submit new posts.
-   - Connect the form to Firebase or local storage for saving posts.
-
 ---
 
 ### 7. User Profile
@@ -181,11 +169,8 @@
 
 7.2 Include options to view past walks and feedback.
    - Implement functionality to fetch and display past walks.
-   - Create UI elements for listing feedback given by the user.
 
 7.3 Implement user settings management.
-   - Create UI components for updating user details (name, avatar).
-   - Ensure data validation and successful updates.
 
 ---
 

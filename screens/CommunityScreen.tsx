@@ -1,37 +1,67 @@
-import React, { useEffect, useState } from 'react';
-import { View, FlatList, StyleSheet, TouchableOpacity, Text, StatusBar, ActivityIndicator } from 'react-native';
-import PostCard from '../components/PostCard';
-import SearchBar from '../components/SearchBar';
-import { fetchCommunityPosts } from '../firestoreService';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, FlatList, StyleSheet, TouchableOpacity, Text, StatusBar, ActivityIndicator, RefreshControl } from 'react-native';
+import PostCard from '../src/components/PostCard';
+import { addCommentToPost, fetchCommunityPosts, toggleLikePost } from '../src/services/firestoreService';
+import { useAuth } from '../src/context/AuthContext';
+import { Post } from '../src/types/types';
 
 const CommunityScreen: React.FC = () => {
-    const [posts, setPosts] = useState<any[]>([]);
+    const { user } = useAuth();
+    const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+
+    const fetchPosts = useCallback(async () => {
+        setLoading(true);
+        try {
+            const fetchedPosts = await fetchCommunityPosts();
+            setPosts(fetchedPosts);
+        } catch (error) {
+            console.error("Failed to fetch posts:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
-        const fetchPosts = async () => {
-            try {
-                const fetchedPosts = await fetchCommunityPosts();
-                setPosts(fetchedPosts);
-            } catch (error) {
-                console.error("Failed to fetch posts:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-
         fetchPosts();
-        console.log('Posts: ', posts)
-    }, []);
+    }, [fetchPosts]);
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await fetchPosts();
+        setRefreshing(false);
+    };
+
+    const updatePost = (updatedPost: Post) => {
+        setPosts(prevPosts =>
+            prevPosts.map(post => (post.id === updatedPost.id ? {...post, ...updatedPost} : post))
+        );
+    };
+
+    const handleLikePost = async (postId: string, isLiked: boolean) => {
+        try {
+            const updatedPost = await toggleLikePost(postId, user?.uid, isLiked);
+            if (updatedPost) updatePost(updatedPost);
+        } catch (error) {
+            console.error("Failed to like post:", error);
+        }
+    };
+
+    const handleCommentPost = async (postId: string, comment: string) => {
+        try {
+            const updatedPost = await addCommentToPost(postId, comment, user?.displayName, user?.uid);
+            console.log(updatedPost);
+            if (updatedPost) updatePost(updatedPost);
+        } catch (error) {
+            console.error("Failed to add comment:", error);
+        }
+    };
 
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
-                <ActivityIndicator
-                    size="large"
-                    color={"#000"}
-                />
+                <ActivityIndicator size="large" color="#000" />
                 <Text>Loading...</Text>
             </View>
         );
@@ -40,38 +70,36 @@ const CommunityScreen: React.FC = () => {
     return (
         <View style={styles.container}>
             <StatusBar barStyle="light-content" />
-            <View style={styles.header}>
-                <SearchBar placeholder='Search in your community' value={''} onChangeText={console.log} />
-            </View>
             <FlatList
                 data={posts}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
                     <PostCard
-                        avatar={item.avatar}
-                        name={item.name}
-                        date={item.date}
-                        comment={item.text}
-                        postImage={item.images[0]}
+                        post={item}
+                        onLike={handleLikePost}
+                        onComment={handleCommentPost}
+                        currentUserId={user?.uid || ""}
                     />
                 )}
                 contentContainerStyle={styles.postsList}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }
             />
-
-            <TouchableOpacity style={styles.postButton}>
+            {/* <TouchableOpacity style={styles.postButton}>
                 <Text style={styles.postButtonText}>+</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
         </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#f8f8f8' },
-    header: {
-        paddingTop: 10,
-        paddingHorizontal: 10
+    postsList: {
+        paddingHorizontal: 15,
+        paddingBottom: 70,
+        marginTop: 30,
     },
-    postsList: { paddingHorizontal: 15, paddingBottom: 70 },
     postButton: {
         position: 'absolute',
         bottom: 20,

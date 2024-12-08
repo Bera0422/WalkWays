@@ -1,5 +1,5 @@
 import { db } from './firebaseConfig.js'; // Adjust the path according to your file structure
-import { collection, addDoc, Timestamp, GeoPoint, getDocs, updateDoc, doc} from 'firebase/firestore';
+import { collection, addDoc, Timestamp, GeoPoint, getDocs, updateDoc, doc } from 'firebase/firestore';
 const _routes = [
   {
     id: '1',
@@ -119,136 +119,211 @@ const routeDetails = {
     time: '1 hour',
     elevation: 'Mostly Flat',
     tags: ['City Skyline', 'Family-Friendly', 'Scenic'],
-    // images: [
-    //   require('./assets/manhattan.jpg'),
-    //   require('./assets/manhattan2.jpg'),
-    // ],
+    images: [
+      '/routes/manhattan/manhattan.jpg',
+      '/routes/manhattan/manhattan2.jpg',
+    ],
     description: 'Experience the best views of the city skyline on this scenic route, perfect for families and tourists alike.',
     rating: 4.5,
     latitude: 40.758896,
     longitude: -73.98513,
   },
   '2': {
-      name: 'Rome Historic Walk',
-      distance: '4 miles',
-      time: '1 hour 20 min',
-      elevation: 'Slightly Hilly',
-      tags: ['Ancient Ruins', 'Cobblestone Streets', 'Historic'],
-      // images: [
-      //     require('../assets/rome.jpg'),
-      //     require('../assets/rome2.jpg'),
-      // ],
-      description: 'A walk through the heart of ancient Rome, featuring cobblestone streets and iconic ruins at every turn.',
-      rating: 5.0,
-      latitude: 41.902782,
-      longitude: 12.496366,
+    name: 'Rome Historic Walk',
+    distance: '4 miles',
+    time: '1 hour 20 min',
+    elevation: 'Slightly Hilly',
+    tags: ['Ancient Ruins', 'Cobblestone Streets', 'Historic'],
+    images: [
+        '/routes/rome/rome.jpg',
+        '/routes/rome/rome2.jpg',
+    ],
+    description: 'A walk through the heart of ancient Rome, featuring cobblestone streets and iconic ruins at every turn.',
+    rating: 5.0,
+    latitude: 41.902782,
+    longitude: 12.496366,
   },
   '3': {
-      name: 'Istanbul Bosphorus Walk',
-      distance: '4 miles',
-      time: '1 hour 20 mins',
-      elevation: 'Moderate Hills',
-      tags: ['Waterfront', 'Historic Landmarks', 'Markets'],
-      // images: [
-      //     require('../assets/istanbul.jpg'),
-      //     require('../assets/istanbul2.jpg'),
-      //     require('../assets/istanbul3.jpg'),
-      // ],
-      description: 'Discover Istanbul’s unique blend of cultures on this walk along the Bosphorus, passing historic mosques, bustling markets, and scenic waterfront views.',
-      rating: 4.7,
-      latitude: 41.0082,
-      longitude: 28.9784,
+    name: 'Istanbul Bosphorus Walk',
+    distance: '4 miles',
+    time: '1 hour 20 mins',
+    elevation: 'Moderate Hills',
+    tags: ['Waterfront', 'Historic Landmarks', 'Markets'],
+    images: [
+        '/routes/istanbul/istanbul.jpg',
+        '/routes/istanbul/istanbul2.jpg',
+        '/routes/istanbul/istanbul3.jpg',
+    ],
+    description: 'Discover Istanbul’s unique blend of cultures on this walk along the Bosphorus, passing historic mosques, bustling markets, and scenic waterfront views.',
+    rating: 4.7,
+    latitude: 41.0082,
+    longitude: 28.9784,
   },
   '4': {
-      name: 'Golden Gate Stroll',
-      distance: '2.8 miles',
-      time: '50 mins',
-      elevation: 'Mostly Flat',
-      tags: ['Scenic', 'Iconic', 'Bridge Views'],
-      // images: [
-      //     require('../assets/golden_gate.jpg'),
-      //     require('../assets/golden_gate2.jpg'),
-      // ],
-      description: 'A scenic walk offering views of the Golden Gate Bridge, ideal for a quick but memorable stroll.',
-      rating: 4.8,
-      latitude: 37.8199,
-      longitude: -122.4783,
+    name: 'Golden Gate Stroll',
+    distance: '2.8 miles',
+    time: '50 mins',
+    elevation: 'Mostly Flat',
+    tags: ['Scenic', 'Iconic', 'Bridge Views'],
+    images: [
+        '/routes/golden_gate/golden_gate.jpg',
+        '/routes/golden_gate/golden_gate.jpg',
+    ],
+    description: 'A scenic walk offering views of the Golden Gate Bridge, ideal for a quick but memorable stroll.',
+    rating: 4.8,
+    latitude: 37.8199,
+    longitude: -122.4783,
   },
   '5': {
-      name: 'Paris Riverside Walk',
-      distance: '3 miles',
-      time: '1 hour',
-      elevation: 'Flat',
-      tags: ['Riverfront', 'Historic Sites', 'Romantic'],
-      // images: [
-      //     require('../assets/paris.jpg'),
-      //     require('../assets/paris2.jpg'),
-      // ],
-      description: 'Stroll along the Seine River, enjoying the romantic ambiance and views of historic Parisian landmarks.',
-      rating: 4.7,
-      latitude: 48.8566,
-      longitude: 2.3522,
+    name: 'Paris Riverside Walk',
+    distance: '3 miles',
+    time: '1 hour',
+    elevation: 'Flat',
+    tags: ['Riverfront', 'Historic Sites', 'Romantic'],
+    images: [
+        '/routes/paris/paris.jpg',
+        '/routes/paris/paris2.jpg',
+    ],
+    description: 'Stroll along the Seine River, enjoying the romantic ambiance and views of historic Parisian landmarks.',
+    rating: 4.7,
+    latitude: 48.8566,
+    longitude: 2.3522,
   },
   '6': {
-      name: 'Kyoto Temple Trail',
-      distance: '3.5 miles',
-      time: '1 hour 30 mins',
-      elevation: 'Moderate Hills',
-      tags: ['Temple Views', 'Nature', 'Cultural'],
-      // images: [
-      //     require('../assets/kyoto.jpg'),
-      //     require('../assets/kyoto2.jpg'),
-      // ],
-      description: 'A peaceful route through Kyoto’s famous temples and nature trails, offering a blend of culture and serenity.',
-      rating: 4.9,
-      latitude: 35.0116,
-      longitude: 135.7681,
+    name: 'Kyoto Temple Trail',
+    distance: '3.5 miles',
+    time: '1 hour 30 mins',
+    elevation: 'Moderate Hills',
+    tags: ['Temple Views', 'Nature', 'Cultural'],
+    images: [
+        '/routes/kyoto/kyoto.jpg',
+        '/routes/kyoto/kyoto2.jpg',
+    ],
+    description: 'A peaceful route through Kyoto’s famous temples and nature trails, offering a blend of culture and serenity.',
+    rating: 4.9,
+    latitude: 35.0116,
+    longitude: 135.7681,
   },
   '7': {
-      name: 'Sydney Harbour Loop',
-      distance: '5 miles',
-      time: '1 hour 45 mins',
-      elevation: 'Varied',
-      tags: ['Ocean Views', 'Cliffs', 'Adventure'],
-      // images: [
-      //     require('../assets/sydney.jpg'),
-      //     require('../assets/sydney2.jpg'),
-      // ],
-      description: 'A coastal adventure along Sydney’s beaches and cliffs, with panoramic views of the ocean.',
-      rating: 4.6,
-      latitude: -33.8688,
-      longitude: 151.2093,
+    name: 'Sydney Harbour Loop',
+    distance: '5 miles',
+    time: '1 hour 45 mins',
+    elevation: 'Varied',
+    tags: ['Ocean Views', 'Cliffs', 'Adventure'],
+    images: [
+        '/routes/sydney/sydney.jpg',
+        '/routes/sydney/sydney2.jpg',
+    ],
+    description: 'A coastal adventure along Sydney’s beaches and cliffs, with panoramic views of the ocean.',
+    rating: 4.6,
+    latitude: -33.8688,
+    longitude: 151.2093,
   },
   '8': {
-      name: 'London Royal Parks',
-      distance: '3.6 miles',
-      time: '1 hour 10 mins',
-      elevation: 'Mostly Flat',
-      tags: ['Riverside', 'Landmarks', 'Historic'],
-      // images: [
-      //     require('../assets/london.jpg'),
-      //     require('../assets/london2.jpg'),
-      // ],
-      description: 'A scenic walk along the Thames, with views of iconic landmarks like the Tower Bridge and the Houses of Parliament.',
-      rating: 4.8,
-      latitude: 51.5074,
-      longitude: -0.1278,
+    name: 'London Royal Parks',
+    distance: '3.6 miles',
+    time: '1 hour 10 mins',
+    elevation: 'Mostly Flat',
+    tags: ['Riverside', 'Landmarks', 'Historic'],
+    images: [
+        '/routes/london/london.jpg',
+        '/routes/london/london2.jpg',
+    ],
+    description: 'A scenic walk along the Thames, with views of iconic landmarks like the Tower Bridge and the Houses of Parliament.',
+    rating: 4.8,
+    latitude: 51.5074,
+    longitude: -0.1278,
   },
   '9': {
-      name: 'Barcelona Gaudí Tour',
-      distance: '2.5 miles',
-      time: '1 hour 15 mins',
-      elevation: 'Slightly Hilly',
-      tags: ['Artistic', 'Architectural', 'City Walk'],
-      // images: [
-      //     require('../assets/gaudi.jpg'),
-      //     require('../assets/gaudi2.jpg'),
-      // ],
-      description: 'Explore the vibrant architecture of Gaudí in Barcelona, including the famous Sagrada Familia and other landmarks.',
-      rating: 4.9,
-      latitude: 41.3851,
-      longitude: 2.1734,
+    name: 'Barcelona Gaudí Tour',
+    distance: '2.5 miles',
+    time: '1 hour 15 mins',
+    elevation: 'Slightly Hilly',
+    tags: ['Artistic', 'Architectural', 'City Walk'],
+    images: [
+        '/routes/gaudi/gaudi.jpg',
+        '/routes/gaudi/gaudi2.jpg',
+    ],
+    description: 'Explore the vibrant architecture of Gaudí in Barcelona, including the famous Sagrada Familia and other landmarks.',
+    rating: 4.9,
+    latitude: 41.3851,
+    longitude: 2.1734,
   },
+};
+
+const mockWaypoints = {
+  "W6qF8bWGG1Hf1KrOlFZj": [ // Manhattan Walk
+    { latitude: 40.7577, longitude: -73.9857 },
+    { latitude: 40.7624, longitude: -73.9738 },
+    { latitude: 40.7680, longitude: -73.9819 },
+    { latitude: 40.7732, longitude: -73.9645 },
+    { latitude: 40.7829, longitude: -73.9654 },
+    { latitude: 40.7851, longitude: -73.9577 },
+  ],
+  "OSeit5tPWE0BnTG4Bfur": [ // Rome Historic Walk
+    { latitude: 41.8902, longitude: 12.4922 },
+    { latitude: 41.8968, longitude: 12.4854 },
+    { latitude: 41.8986, longitude: 12.4825 },
+    { latitude: 41.9029, longitude: 12.4805 },
+    { latitude: 41.9074, longitude: 12.4746 },
+    { latitude: 41.9097, longitude: 12.4726 },
+  ],
+  "egSW17KxXOrzDpuEYJWo": [ // Istanbul Walk
+    { latitude: 41.0082, longitude: 28.9784 },
+    { latitude: 41.0138, longitude: 28.9833 },
+    { latitude: 41.0183, longitude: 28.9712 },
+    { latitude: 41.0234, longitude: 28.9658 },
+    { latitude: 41.0297, longitude: 28.9574 },
+    { latitude: 41.0321, longitude: 28.9497 },
+  ],
+  "pAeGLnlNpOGzalqTTGIT": [ // Golden Gate Stroll
+    { latitude: 37.8077, longitude: -122.4757 },
+    { latitude: 37.8087, longitude: -122.4698 },
+    { latitude: 37.8107, longitude: -122.4616 },
+    { latitude: 37.8127, longitude: -122.4542 },
+    { latitude: 37.8151, longitude: -122.4470 },
+    { latitude: 37.8184, longitude: -122.4392 },
+  ],
+  "6Zw04eIYmkhjpvZGa5Vk": [ // Paris Riverside Walk
+    { latitude: 48.8566, longitude: 2.3522 },
+    { latitude: 48.8589, longitude: 2.3397 },
+    { latitude: 48.8623, longitude: 2.3303 },
+    { latitude: 48.8655, longitude: 2.3202 },
+    { latitude: 48.8686, longitude: 2.3105 },
+    { latitude: 48.8716, longitude: 2.3011 },
+  ],
+  "IVIa8fqvDW7qh6qsVDKt": [ // Kyoto Temple Trail
+    { latitude: 35.0116, longitude: 135.7681 },
+    { latitude: 35.0108, longitude: 135.7732 },
+    { latitude: 35.0088, longitude: 135.7812 },
+    { latitude: 35.0068, longitude: 135.7883 },
+    { latitude: 35.0038, longitude: 135.7935 },
+    { latitude: 35.0015, longitude: 135.7989 },
+  ],
+  "T76a1p1WtAvPNm5iS2ks": [ // Sydney Harbour Loop
+    { latitude: -33.8523, longitude: 151.2108 },
+    { latitude: -33.8556, longitude: 151.2146 },
+    { latitude: -33.8579, longitude: 151.2191 },
+    { latitude: -33.8599, longitude: 151.2233 },
+    { latitude: -33.8618, longitude: 151.2274 },
+    { latitude: -33.8642, longitude: 151.2326 },
+  ],
+  "odVAs9Jb7qojOgnWs8Gh": [ // London Royal Parks
+    { latitude: 51.5048, longitude: -0.1503 },
+    { latitude: 51.5074, longitude: -0.1624 },
+    { latitude: 51.5091, longitude: -0.1762 },
+    { latitude: 51.5112, longitude: -0.1884 },
+    { latitude: 51.5141, longitude: -0.2023 },
+    { latitude: 51.5182, longitude: -0.2166 },
+  ],
+  "zvI9KoB6ZCbBwLUD04rY": [ // Barcelona Gaudí Tour
+    { latitude: 41.4036, longitude: 2.1744 },
+    { latitude: 41.4055, longitude: 2.1623 },
+    { latitude: 41.4087, longitude: 2.1542 },
+    { latitude: 41.4114, longitude: 2.1468 },
+    { latitude: 41.4142, longitude: 2.1385 },
+    { latitude: 41.4165, longitude: 2.1311 },
+  ]
 };
 
 const seedRoutes = async () => {
@@ -309,8 +384,45 @@ const updateRoutesByName = async () => {
           elevation: matchingRoute.elevation,
           details: {
             description: matchingRoute.description,
-            images: [''],
-            location: new GeoPoint(matchingRoute.latitude, matchingRoute.longitude)
+            images: matchingRoute.images,
+            location: new GeoPoint(matchingRoute.latitude, matchingRoute.longitude),
+            waypoints: mockWaypoints[routeId].map(({ latitude, longitude }) => new GeoPoint(latitude, longitude))
+          }
+        });
+
+        console.log(`Route ${firestoreData.name} updated successfully!`);
+      }
+    });
+
+    console.log('All matching routes have been updated!');
+  } catch (error) {
+    console.error("Error updating routes: ", error);
+  }
+};
+
+const updateRoutesByWaypoints = async () => {
+  try {
+    const routesCollection = collection(db, 'routes');
+    const routesSnapshot = await getDocs(routesCollection);
+
+    // Iterate over each document in Firestore
+    routesSnapshot.forEach(async (routeDoc) => {
+      const firestoreData = routeDoc.data();
+      const routeId = routeDoc.id;
+
+      // Find matching route in your data by name
+      const matchingKey = Object.keys(mockWaypoints).find(route => route === routeId);
+      const matchingRoute = mockWaypoints[matchingKey];
+      const waypoints = matchingRoute.map(({ latitude, longitude }) => new GeoPoint(latitude, longitude));
+      console.log(waypoints);
+
+      // If a match is found, update Firestore document
+      if (matchingRoute) {
+        const routeRef = doc(db, 'routes', routeId);
+
+        await updateDoc(routeRef, {
+          details: {
+            waypoints: waypoints
           }
         });
 
@@ -328,4 +440,6 @@ const updateRoutesByName = async () => {
 
 // seedTags();
 
-// updateRoutesByName();
+updateRoutesByName();
+
+// updateRoutesByWaypoints();

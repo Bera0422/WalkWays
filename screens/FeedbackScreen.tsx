@@ -1,24 +1,29 @@
-// FeedbackScreen.tsx
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, TouchableWithoutFeedback, Keyboard, SafeAreaView, AppState, AppStateStatus } from 'react-native';
-import { FontAwesome, FontAwesome6 } from '@expo/vector-icons';
-import { FeedbackScreenNavigationProp, FeedbackScreenRouteProp } from '../src/types/props';
-import { getData, saveData } from '../src/utils/storage';
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
+    TouchableWithoutFeedback,
+    Keyboard,
+    ScrollView,
+    ActivityIndicator,
+    AppState,
+} from 'react-native';
 import CheckBox from 'expo-checkbox';
-import MediaUpload from '../components/MediaUpload';
-import { ScrollView } from 'react-native-gesture-handler';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { fetchTags, saveCommunityPost, saveReview, uploadImage } from '../firestoreService';
-import { IReview } from '../src/types/types';
+import { FontAwesome } from '@expo/vector-icons';
 import { Timestamp } from 'firebase/firestore';
-
-type Feedback = {
-    routeId: string;
-    selectedTags: string[];
-    rating: number;
-    comments: string;
-};
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../src/context/AuthContext';
+import MediaUpload from '../src/components/MediaUpload';
+import {
+    fetchTags,
+    saveCommunityPost,
+    saveReview,
+    uploadImage,
+} from '../src/services/firestoreService';
+import { FeedbackScreenNavigationProp, FeedbackScreenRouteProp } from '../src/types/props';
 
 interface Props {
     route: FeedbackScreenRouteProp;
@@ -26,52 +31,50 @@ interface Props {
 }
 
 const FeedbackScreen: React.FC<Props> = ({ route, navigation }) => {
-    const [rating, setRating] = useState<number>(4);
-    const [shareWithCommunity, setShareWithCommunity] = useState<boolean>(false);
-    const [reviewMessage, setReviewMessages] = useState<string>('');
+    const { user } = useAuth();
+    const routeId = route.params.routeId;
+    const routeName = route.params.routeName;
+
+    const [rating, setRating] = useState(4);
+    const [shareWithCommunity, setShareWithCommunity] = useState(false);
+    const [reviewMessage, setReviewMessage] = useState('');
     const [selectedTags, setSelectedTags] = useState<any[]>([]);
     const [availableTags, setAvailableTags] = useState<any[]>([]);
     const [selectedMedia, setSelectedMedia] = useState<string | null>(null);
-    const routeId = route.params.routeId;
+    const [loading, setLoading] = useState(false);
+    const [warningMessage, setWarningMessage] = useState<string | null>(null);
 
     useEffect(() => {
-        const getTags = async () => {
+        const fetchAvailableTags = async () => {
             try {
-                const fetchedTags = await fetchTags();
-                setAvailableTags(fetchedTags);
+                const tags = await fetchTags();
+                setAvailableTags(tags);
             } catch (error) {
-                console.error("Failed to fetch filters:", error);
-            } finally {
+                console.error('Error fetching tags:', error);
             }
         };
-        getTags();
-    }, []);
 
-    const [feedback, setFeedback] = useState<Feedback>({
-        routeId: '',
-        selectedTags: [],
-        rating: 0,
-        comments: '',
-    });
-
-    useEffect(() => {
+        fetchAvailableTags();
         loadFeedbackData();
-        const appStateListener = AppState.addEventListener('change', handleAppStateChange);
+
+        const saveOnAppClose = () => saveFeedbackData();
+        const appStateListener = AppState.addEventListener('change', saveOnAppClose);
+
         return () => {
-            saveFeedbackData();
             appStateListener.remove();
+            saveFeedbackData();
         };
     }, []);
 
-    const handleAppStateChange = async (nextAppState: AppStateStatus) => {
-        if (nextAppState === 'background') {
-            await saveFeedbackData();
-        }
-    };
-
     const saveFeedbackData = async () => {
+        const feedbackData = {
+            routeId,
+            rating,
+            reviewMessage,
+            selectedTags,
+        };
         try {
-            await AsyncStorage.setItem('unsavedFeedback', JSON.stringify(feedback));
+            await AsyncStorage.setItem('unsavedFeedback', JSON.stringify(feedbackData));
         } catch (error) {
             console.error('Failed to save feedback:', error);
         }
@@ -80,120 +83,147 @@ const FeedbackScreen: React.FC<Props> = ({ route, navigation }) => {
     const loadFeedbackData = async () => {
         try {
             const savedFeedback = await AsyncStorage.getItem('unsavedFeedback');
-            console.log("SAVED FEEDBACK: " + savedFeedback)
             if (savedFeedback) {
-                setFeedback(JSON.parse(savedFeedback));
+                const feedback = JSON.parse(savedFeedback);
+                setRating(feedback.rating || 4);
+                setReviewMessage(feedback.reviewMessage || '');
+                setSelectedTags(feedback.selectedTags || []);
             }
         } catch (error) {
             console.error('Failed to load feedback:', error);
         }
     };
 
-
-
-    const handleMediaSelect = (uri: string) => {
-        setSelectedMedia(uri)
-        console.log(uri)
-    }
+    const handleMediaSelect = (uri: string) => setSelectedMedia(uri);
 
     const toggleTag = (tagId: string) => {
-        setSelectedTags((prevTags) =>
-            prevTags.includes(tagId) ? prevTags.filter((t) => t !== tagId) : [...prevTags, tagId]
-        );
+        if (selectedTags.includes(tagId)) {
+            setSelectedTags((tags) => tags.filter((id) => id !== tagId));
+        } else if (selectedTags.length < 3) {
+            setSelectedTags((tags) => [...tags, tagId]);
+        } else {
+            setWarningMessage('You can select up to 3 tags only!');
+            setTimeout(() => setWarningMessage(null), 3000);
+        }
     };
 
-    const renderStars = () => {
-        return Array.from({ length: 5 }).map((_, index) => (
+    const renderStars = () =>
+        Array.from({ length: 5 }, (_, index) => (
             <FontAwesome
                 key={index}
                 name={index < rating ? 'star' : 'star-o'}
-                size={32}
+                size={50}
                 color="#FFD700"
                 onPress={() => setRating(index + 1)}
             />
         ));
-    };
 
     const submitFeedback = async () => {
+        setLoading(true);
+
         let imageUrl = null;
         if (selectedMedia) {
             imageUrl = await uploadImage(selectedMedia, 'user-uploads');
         }
-        const reviewData =
-        {
-            userId: '',
-            rating: rating,
+
+        const feedbackData = {
+            userId: user?.uid,
+            routeId,
+            rating,
             text: reviewMessage,
-            timestamp: Timestamp.now(),
-            media: imageUrl,
-            routeId: routeId,
             tags: selectedTags,
+            media: imageUrl,
+            timestamp: Timestamp.now(),
         };
 
         try {
-            await saveReview(reviewData);
+            await saveReview(feedbackData);
             if (shareWithCommunity) {
-                const communityPostData = {
-                    ...reviewData,
-                    timestamp: new Date(),
-                };
-                await saveCommunityPost(communityPostData);
-                console.log('Community post saved:', reviewData);
+                await saveCommunityPost({ routeName: routeName, ...feedbackData, timestamp: new Date() });
             }
-            console.log('Feedback saved:', reviewData);
+            await AsyncStorage.removeItem('unsavedFeedback');
+            navigation.reset({ index: 0, routes: [{ name: 'CommunityStack', params: { screen: 'Community' } }] });
         } catch (error) {
-            console.error('Error saving feedback:', error);
+            console.error('Error submitting feedback:', error);
+        } finally {
+            setLoading(false);
         }
-        await AsyncStorage.removeItem('unsavedFeedback')
-
-        navigation.reset({
-            index: 0,
-            routes: [{ name: 'CommunityStack', params: { screen: 'Community' } }],
-        });
     };
 
+    const handleLoginRedirect = () => {
+        navigation.reset({ index: 0, routes: [{ name: 'AuthStack', params: { screen: 'Login' } }] });
+    }
+
+    if (!user?.uid) {
+        return (
+            <ScrollView contentContainerStyle={styles.container}>
+                <Text style={styles.title}>Log in to Provide Feedback</Text>
+                <TouchableOpacity onPress={handleLoginRedirect}>
+                    <Text style={styles.loginPrompt}>
+                        Tap here to log in and provide feedback on your route.
+                    </Text>
+                </TouchableOpacity>
+            </ScrollView>
+        );
+    }
+
     return (
-        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            <ScrollView style={styles.container} contentContainerStyle={styles.scrollContainer}>
-                {/* <ScrollView> */}
-                <Text style={styles.sectionTitle}>Rate Your Experience</Text>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <ScrollView contentContainerStyle={styles.container}>
+                <Text style={styles.title}>Rate Your Experience</Text>
                 <View style={styles.starContainer}>{renderStars()}</View>
 
-                <Text style={styles.sectionTitle}>Tag the route</Text>
+                <Text style={styles.title}>Tag the Route</Text>
                 <View style={styles.tagContainer}>
                     {availableTags.map((tag) => (
                         <TouchableOpacity
                             key={tag.id}
-                            style={[styles.tag, selectedTags.includes(tag.id) ? styles.activeTag : styles.inactiveTag]}
+                            style={[
+                                styles.tag,
+                                selectedTags.includes(tag.id) ? styles.activeTag : styles.inactiveTag,
+                            ]}
                             onPress={() => toggleTag(tag.id)}
                         >
-                            {/* <FontAwesome6 name={tag.icon} size={18} color="#fff" style={styles.tagIcon} /> */}
-                            <Text style={selectedTags.includes(tag.id) ? styles.activeTagText : styles.inactiveTagText}>{tag.name}</Text>
+                            <Text
+                                style={[
+                                    styles.tagText,
+                                    selectedTags.includes(tag.id) ? styles.activeTagText : styles.inactiveTagText,
+                                ]}
+                            >
+                                {tag.name}
+                            </Text>
                         </TouchableOpacity>
                     ))}
                 </View>
 
-                <Text style={styles.sectionTitle}>Share any thoughts</Text>
+                {warningMessage && <Text style={styles.warning}>{warningMessage}</Text>}
+
+                <Text style={styles.title}>Share Your Thoughts</Text>
                 <TextInput
                     style={styles.textInput}
                     placeholder="Write your thoughts here..."
                     value={reviewMessage}
-                    onChangeText={(text) => { setReviewMessages(text); setFeedback({ ...feedback, comments: text }) }}
+                    onChangeText={setReviewMessage}
                     multiline
                 />
-                {/* Upload Media */}
+
                 <MediaUpload onSelectMedia={handleMediaSelect} />
 
-                {/* Share with community checkbox */}
                 <View style={styles.checkboxContainer}>
-                    <CheckBox value={shareWithCommunity} onValueChange={setShareWithCommunity} />
+                    <CheckBox
+                        value={shareWithCommunity}
+                        onValueChange={setShareWithCommunity}
+                    />
                     <Text style={styles.checkboxLabel}>Share with your community</Text>
                 </View>
 
-
-                <TouchableOpacity style={styles.submitButton} onPress={submitFeedback}>
-                    <Text style={styles.submitButtonText}>Submit</Text>
-                </TouchableOpacity>
+                {loading ? (
+                    <ActivityIndicator size="large" color="#6A1B9A" style={styles.loadingIndicator} />
+                ) : (
+                    <TouchableOpacity style={styles.submitButton} onPress={submitFeedback}>
+                        <Text style={styles.submitButtonText}>Submit</Text>
+                    </TouchableOpacity>
+                )}
             </ScrollView>
         </TouchableWithoutFeedback>
     );
@@ -201,78 +231,99 @@ const FeedbackScreen: React.FC<Props> = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        padding: 16,
-        backgroundColor: '#fff',
+        flexGrow: 1,
+        padding: 20,
+        backgroundColor: '#f9f9f9', // Light background for a clean feel
     },
-    scrollContainer: {
-        padding: 16,
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginTop: 20,
+    title: {
+        fontSize: 20,
+        fontWeight: '600',
+        marginBottom: 12,
+        color: '#6A1B9A',
     },
     starContainer: {
         flexDirection: 'row',
-        marginVertical: 10,
+        justifyContent: 'center',
+        marginBottom: 20,
     },
     tagContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        marginVertical: 10,
+        marginBottom: 20,
     },
     tag: {
-        paddingVertical: 6,
-        paddingHorizontal: 12,
-        borderRadius: 10,
-        margin: 4,
-        flexDirection: 'row',
+        borderRadius: 20,
+        paddingHorizontal: 15,
+        paddingVertical: 8,
+        margin: 5,
     },
     activeTag: {
         backgroundColor: '#6A1B9A',
     },
     inactiveTag: {
-        backgroundColor: '#b89bcc',
+        backgroundColor: '#E0E0E0',
+    },
+    tagText: {
+        fontSize: 16,
+        fontWeight: '500',
     },
     activeTagText: {
         color: '#fff',
-        fontWeight: 'bold',
     },
     inactiveTagText: {
-        color: '#fff',
-    },
-    tagIcon: {
-        marginRight: 5,
+        color: '#000',
     },
     textInput: {
-        height: 100,
-        borderColor: '#ccc',
         borderWidth: 1,
+        borderColor: '#ccc',
         borderRadius: 8,
-        padding: 10,
-        marginVertical: 10,
+        padding: 12,
         textAlignVertical: 'top',
+        minHeight: 100,
+        marginBottom: 20,
+        fontSize: 16,
+        backgroundColor: '#fff',
     },
     checkboxContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 10,
+        marginBottom: 20,
     },
     checkboxLabel: {
-        marginLeft: 8,
+        marginLeft: 10,
+        fontSize: 16,
+        color: '#333',
     },
     submitButton: {
         backgroundColor: '#6A1B9A',
-        padding: 15,
+        paddingVertical: 15,
+        paddingHorizontal: 30,
         borderRadius: 8,
         alignItems: 'center',
-        marginTop: 20,
+        shadowColor: '#6A1B9A',
+        shadowOpacity: 0.2,
+        shadowRadius: 6,
+        elevation: 5,
     },
     submitButtonText: {
         color: '#fff',
+        fontSize: 18,
+        fontWeight: '700',
+    },
+    loadingIndicator: {
+        marginTop: 20,
+    },
+    warning: {
+        color: 'red',
+        textAlign: 'center',
+        marginTop: 8,
+    },
+    loginPrompt: {
         fontSize: 16,
-        fontWeight: 'bold',
+        color: '#6A1B9A',
+        textAlign: 'center',
+        marginTop: 20,
+        textDecorationLine: 'underline',
     },
 });
 

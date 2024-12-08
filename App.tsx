@@ -5,6 +5,7 @@ import Navigation from './AppNavigator';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AppState, AppStateStatus } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthProvider, useAuth } from './src/context/AuthContext';
 
 export default function App() {
   const appState = useRef(AppState.currentState);
@@ -66,9 +67,11 @@ export default function App() {
   };
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-    <NavigationContainer>
-      <Navigation />
-    </NavigationContainer>
+      <AuthProvider>
+        <NavigationContainer>
+          <Navigation />
+        </NavigationContainer>
+      </AuthProvider>
     </GestureHandlerRootView>
   );
 }
