@@ -116,6 +116,7 @@ const SaveRouteScreen: React.FC<Props> = ({ route, navigation }) => {
             tags: selectedTags,
             timestamp: Timestamp.now(),
             displayOnHome: shareOnHome,
+            curated: false,
         };
 
         try {
